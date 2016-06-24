@@ -1,7 +1,7 @@
 ## Argus Open Source
 Software to apply Statistical Disclosure Control techniques
 
-Copyright 2014 Statistics Netherlands
+Copyright jjsalaza@ull.es
 
 This program is free software; you can redistribute it and/or 
 modify it under the termcomboBoxOutputDimensions of the European Union Public Licence 
