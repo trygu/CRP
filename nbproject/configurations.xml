@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="94">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>src/WrapCRP.h</itemPath>
+      <itemPath>src/crpdefns.h</itemPath>
+      <itemPath>src/crpglob.h</itemPath>
+      <itemPath>src/crpmain.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>src/crpCaudit.c</itemPath>
+      <itemPath>src/crpCmain.c</itemPath>
+      <itemPath>src/crpSaudit.c</itemPath>
+      <itemPath>src/crpSmain.c</itemPath>
+      <itemPath>src/crpXaudit.c</itemPath>
+      <itemPath>src/crpXmain.c</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+      <itemPath>NBMakefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+      </compileType>
+      <item path="src/WrapCRP.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/crpCaudit.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpCmain.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpSaudit.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpSmain.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpXaudit.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpXmain.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpdefns.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/crpglob.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/crpmain.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="src/WrapCRP.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/crpCaudit.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpCmain.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpSaudit.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpSmain.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpXaudit.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpXmain.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/crpdefns.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/crpglob.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/crpmain.h" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
