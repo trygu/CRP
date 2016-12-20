@@ -8,15 +8,16 @@ CC            = gcc
 CXX           = g++
 DEFINES       = -DCPLEXV -DSCIPV -DXPRESSV -DDYNAMIC 
 
-ifeq ($(PROCESSOR_ARCHITECTURE), AMD64) # 64bit windows detected
-    DEFINES = -DCPLEXV -DSCIPV -DXPRESSV -DDYNAMIC -D_LP64
-endif
+#ifeq ($(PROCESSOR_ARCHITECTURE), AMD64) # 64bit windows detected
+#    DEFINES = -DCPLEXV -DSCIPV -DXPRESSV -DDYNAMIC -D_LP64
+#endif
 
 CXXFLAGS      = -ggdb -Wall $(DEFINES)  
 RM = rm -f
 MKDIR=mkdir
 
 # Macros
+#CND_PLATFORM=MinGW_64-Windows
 CND_PLATFORM=MinGW-Windows
 CND_DLIB_EXT=dll
 CND_CONF=Debug
@@ -33,7 +34,7 @@ DIRCPLEX	  	= ../cplex
 DIRXPRESS 	  	= ../Xpress
 
 INCPATH1    = -I$(DIRCPLEX)/include -I$(DIRXPRESS)
-LIBS1       = -L$(DIRCPLEX)/lib -lcplex1263 -L$(DIRXPRESS) -lxprl -lxprs
+LIBS1       = -L$(DIRCPLEX)/lib -lcplex122 -L$(DIRXPRESS) -lxprl -lxprs
 
 # SCIP with CLP
 ifeq ($(LPS),CLP)
@@ -46,11 +47,11 @@ endif
 #ifeq ($(LPS),SOPLEX)
 DIRLPS	    = ../scip-3.1.1
 DIRSOPLEX   = ../soplex-2.0.1
-SOPLEXLIB   = soplex-2.0.1.mingw.x86_64.gnu.opt
-NLPILIB     = nlpi.cppad-3.1.1.mingw.x86_64.gnu.opt
-SCIPLIB     = scip-3.1.1.mingw.x86_64.gnu.opt
-OBJSCIPLIB  = objscip-3.1.1.mingw.x86_64.gnu.opt
-LPISPXLIB   = lpispx-3.1.1.mingw.x86_64.gnu.opt
+SOPLEXLIB   = soplex-2.0.1.mingw.x86.gnu.opt
+NLPILIB     = nlpi.cppad-3.1.1.mingw.x86.gnu.opt
+SCIPLIB     = scip-3.1.1.mingw.x86.gnu.opt
+OBJSCIPLIB  = objscip-3.1.1.mingw.x86.gnu.opt
+LPISPXLIB   = lpispx-3.1.1.mingw.x86.gnu.opt
 
 LIBS        = -L$(DIRLPS)/lib -l$(SCIPLIB) -l$(LPISPXLIB) -L$(DIRSOPLEX)/lib -l$(SOPLEXLIB) -L$(DIRLPS)/lib -l$(NLPILIB) -l$(OBJSCIPLIB)
 INCPATH     = -I$(DIRLPS)/src -I$(DIRSOPLEX)/src
@@ -59,7 +60,7 @@ INCPATH     = -I$(DIRLPS)/src -I$(DIRSOPLEX)/src
 ####### Object Files
 OBJECTS       = ${OBJECTDIR}/src/crpXmain.o ${OBJECTDIR}/src/crpXaudit.o ${OBJECTDIR}/src/crpSmain.o ${OBJECTDIR}/src/crpSaudit.o ${OBJECTDIR}/src/crpCmain.o ${OBJECTDIR}/src/crpCaudit.o ${OBJECTDIR}/src/WrapCRP.o
 
-LDLIBSOPTIONS  = $(LIBS) $(LIBS1)
+LDLIBSOPTIONS  = $(LIBS) $(LIBS1) -static-libgcc -static-libstdc++
 
 ####### Compile
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT}: ${OBJECTS} 
