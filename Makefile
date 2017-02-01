@@ -28,7 +28,7 @@ CND_BUILDDIR=build
 OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Cplex
-DIRCPLEX	  	= ../cplex
+DIRCPLEX	  	= ../Cplex/Cplex122
 
 #XPress
 DIRXPRESS 	  	= ../Xpress
@@ -66,6 +66,7 @@ LDLIBSOPTIONS  = $(LIBS) $(LIBS1) -static-libgcc -static-libstdc++
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT}: ${OBJECTS} 
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	$(CXX) -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT} ${OBJECTS} $(CXXFLAGS) ${LDLIBSOPTIONS} -shared
+	cp ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT} ../tauargus
 
 ${OBJECTDIR}/src/crpCaudit.o: src/crpCaudit.c src/crpdefns.h
 	${MKDIR} -p ${OBJECTDIR}/src
