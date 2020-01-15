@@ -35,7 +35,7 @@ int  (*CRPextratime)(void);
 //#endif
 
 enum ErrorTypes {
-        NOLICENSE = 7000,
+        NOLICENSE = 7100,
         NOINPUTFILE,
         NOJJFORMAT,
         NOLOADPROBLEM,

@@ -51,7 +51,7 @@ int X_CRPopenSOLVER()
     int status;
     char slicmsg[256] = "";
     char version[256];
-    char banner[256];
+    char banner[256];  
     
     status = XPRSinit(NULL);
     if(status){
