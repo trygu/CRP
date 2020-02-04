@@ -12,7 +12,7 @@ DEFINES       = -DCPLEXV -DSCIPV -DXPRESSV -DDYNAMIC
 #    DEFINES = -DCPLEXV -DSCIPV -DXPRESSV -DDYNAMIC -D_LP64
 #endif
 
-CXXFLAGS      = -ggdb -Wall $(DEFINES)  
+CXXFLAGS = -ggdb -Wall $(DEFINES)  
 RM = rm -f
 MKDIR=mkdir
 
@@ -28,10 +28,10 @@ CND_BUILDDIR=build
 OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Cplex
-DIRCPLEX	  	= ../Cplex/Cplex122
+DIRCPLEX	  	= ../Solvers/Cplex/Cplex122
 
 #XPress
-DIRXPRESS 	  	= ../Xpress
+DIRXPRESS 	  	= ../Solvers/Xpress
 
 INCPATH1    = -I$(DIRCPLEX)/include -I$(DIRXPRESS)
 LIBS1       = -L$(DIRCPLEX)/lib -lcplex122 -L$(DIRXPRESS) -lxprl -lxprs
@@ -45,8 +45,8 @@ endif
 
 # SCIP with soplex
 #ifeq ($(LPS),SOPLEX)
-DIRLPS	    = ../scip-3.1.1
-DIRSOPLEX   = ../soplex-2.0.1
+DIRLPS	    = ../Solvers/scip-3.1.1
+DIRSOPLEX   = ../Solvers/soplex-2.0.1
 SOPLEXLIB   = soplex-2.0.1.mingw.x86.gnu.opt
 NLPILIB     = nlpi.cppad-3.1.1.mingw.x86.gnu.opt
 SCIPLIB     = scip-3.1.1.mingw.x86.gnu.opt
@@ -58,44 +58,28 @@ INCPATH     = -I$(DIRLPS)/src -I$(DIRSOPLEX)/src
 #endif
 
 ####### Object Files
-OBJECTS       = ${OBJECTDIR}/src/crpXmain.o ${OBJECTDIR}/src/crpXaudit.o ${OBJECTDIR}/src/crpSmain.o ${OBJECTDIR}/src/crpSaudit.o ${OBJECTDIR}/src/crpCmain.o ${OBJECTDIR}/src/crpCaudit.o ${OBJECTDIR}/src/WrapCRP.o
+OBJECTS       = ${OBJECTDIR}/src/crpXmain.o ${OBJECTDIR}/src/crpXaudit.o ${OBJECTDIR}/src/crpSmain.o ${OBJECTDIR}/src/crpSaudit.o ${OBJECTDIR}/src/crpCmain.o ${OBJECTDIR}/src/crpCaudit.o ${OBJECTDIR}/src/WrapCRP.o ${OBJECTDIR}/src/Versioninfo.o
 
 LDLIBSOPTIONS  = $(LIBS) $(LIBS1) -static-libgcc -static-libstdc++
 
 ####### Compile
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT}: ${OBJECTS} 
+all:    	
+	$(RM) -r ${CND_BUILDDIR}/${CND_CONF}
+	$(RM) ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/${CSPCPX}.${CND_DLIB_EXT}
+	${MKDIR} -p ${OBJECTDIR}/src
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
+	windres ./src/Versioninfo.rc ${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o
+	
+	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpCaudit.o src/crpCaudit.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpCmain.o src/crpCmain.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpSaudit.o src/crpSaudit.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpSmain.o src/crpSmain.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpXaudit.o src/crpXaudit.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpXmain.o src/crpXmain.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/WrapCRP.o src/WrapCRP.c
 	$(CXX) -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT} ${OBJECTS} $(CXXFLAGS) ${LDLIBSOPTIONS} -shared
 	cp ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT} ../tauargus
-
-${OBJECTDIR}/src/crpCaudit.o: src/crpCaudit.c src/crpdefns.h
-	${MKDIR} -p ${OBJECTDIR}/src
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpCaudit.o src/crpCaudit.c
-
-${OBJECTDIR}/src/crpCmain.o: src/crpCmain.c src/crpmain.h src/crpglob.h src/crpdefns.h
-	${MKDIR} -p ${OBJECTDIR}/src
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpCmain.o src/crpCmain.c
-
-${OBJECTDIR}/src/crpSaudit.o: src/crpSaudit.c src/crpdefns.h
-	${MKDIR} -p ${OBJECTDIR}/src
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpSaudit.o src/crpSaudit.c
-
-${OBJECTDIR}/src/crpSmain.o: src/crpSmain.c src/crpmain.h src/crpglob.h src/crpdefns.h
-	${MKDIR} -p ${OBJECTDIR}/src
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpSmain.o src/crpSmain.c
-
-${OBJECTDIR}/src/crpXaudit.o: src/crpXaudit.c src/crpdefns.h
-	${MKDIR} -p ${OBJECTDIR}/src
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpXaudit.o src/crpXaudit.c
-
-${OBJECTDIR}/src/crpXmain.o: src/crpXmain.c src/crpmain.h src/crpglob.h src/crpdefns.h
-	${MKDIR} -p ${OBJECTDIR}/src
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpXmain.o src/crpXmain.c
-
-${OBJECTDIR}/src/WrapCRP.o: src/WrapCRP.c src/WrapCRP.h
-	${MKDIR} -p ${OBJECTDIR}/src
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/WrapCRP.o src/WrapCRP.c
-
+	
 clean:
 	$(RM) -r ${CND_BUILDDIR}/${CND_CONF}
 	$(RM) ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT}
