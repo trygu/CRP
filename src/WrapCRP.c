@@ -178,7 +178,7 @@ int    CRPauditing(const char *Solver, int type)
     return retval;
 }
 
-int    CRPopenSOLVER(const char *Solver, const char *LicenseFile)
+int    CRPopenSOLVER(const char *Solver, const char *LicenseFile, const char *LogFile)
 {
     int retval = -1;
 #ifdef CPLEXV
@@ -188,7 +188,7 @@ int    CRPopenSOLVER(const char *Solver, const char *LicenseFile)
     if (strcmp(Solver,"SCIP")==0)   retval = S_CRPopenSOLVER();
 #endif
 #ifdef XPRESSV
-    if (strcmp(Solver,"XPRESS")==0) retval = X_CRPopenSOLVER();
+    if (strcmp(Solver,"XPRESS")==0) retval = X_CRPopenSOLVER(LogFile);
 #endif
     return retval;
 }
@@ -397,7 +397,7 @@ int do_round(char *Solver, char *InFileName, double Base, double *UpperBound, do
     //CRPSetDoubleConstant(JJMINVIOLA,0.0001);
     //CRPSetDoubleConstant(JJMAXSLACK,0.01);
 
-    if( CRPopenSOLVER(Solver, LicenseFile) ){
+    if( CRPopenSOLVER(Solver, LicenseFile, LogFile) ){
         printf("Problems with the SOLVER license\n");
 	if( LogFile ) fclose( outputfile );
         *ErrorCode = NOLICENSE;

@@ -46,20 +46,26 @@ static int  XPRS_CC PrintAtBranchNode(XPRSprob prob, void *mypointer );
 
 /*  FUNCTIONS  */
 
-int X_CRPopenSOLVER()
+int X_CRPopenSOLVER(const char *LogFile)
 {
     int status;
     char slicmsg[256] = "";
     char version[256];
-    char banner[256];  
+    char banner[256]; 
+    int ierr, nvalue;
     
+    FILE *logfile = fopen(LogFile,"a");
+ 
     status = XPRSinit(NULL);
     if(status){
 	printf("ERROR (status=%d): problems initializing XPRESS-solver\n",status);
+        fprintf(logfile,"ERROR (status=%d): problems initializing XPRESS-solver\n",status);
         XPRSgetlicerrmsg(slicmsg,256);
         printf("%s\n", slicmsg);
+        fprintf(logfile,"%s\n", slicmsg);
 	XPRSgetbanner(banner);
 	printf("%s\n", banner);
+        fclose(logfile);
 	return -1;
     }
 

@@ -55,7 +55,7 @@ extern "C" {
 
 void   CRPSetFileNames(const char*, const char*);
 void   CRPFreeFileNames(void);
-int    CRPopenSOLVER(const char*, const char*);
+int    CRPopenSOLVER(const char*, const char*, const char*);
 int    CRPcloseSOLVER(const char*);
 int    CRPoptimize(const char* ,double*,double*);
 int    CRPloadprob(const char* ,int,double*,int,double*,int*,char*,double*,double*,double*,double*,double*,char**,int*,int*,signed char*,int);
@@ -106,7 +106,7 @@ int    X_CRPloadprob(int,double*,int,double*,int*,char*,double*,double*,double*,
 int    X_CRPfreeprob(void);
 int    X_CRPprintsolution(char*,char*);
 int    X_CRPauditing(int);
-int    X_CRPopenSOLVER(void);
+int    X_CRPopenSOLVER(const char*);
 int    X_CRPcloseSOLVER(void);
 #endif
 
