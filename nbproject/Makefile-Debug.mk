@@ -21,7 +21,7 @@ FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=MinGW-Windows
+CND_PLATFORM=MinGW_64bit-Windows
 CND_DLIB_EXT=dll
 CND_CONF=Debug
 CND_DISTDIR=dist
@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/src/WrapCRP.o \
 	${OBJECTDIR}/src/crpCaudit.o \
 	${OBJECTDIR}/src/crpCmain.o \
 	${OBJECTDIR}/src/crpSaudit.o \
@@ -67,35 +68,40 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT}: ${OBJECTFILES
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT} ${OBJECTFILES} ${LDLIBSOPTIONS} -shared
 
+${OBJECTDIR}/src/WrapCRP.o: src/WrapCRP.c
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.c) -g -DCPLEXV -DSCIPV -DXPRESSV  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/WrapCRP.o src/WrapCRP.c
+
 ${OBJECTDIR}/src/crpCaudit.o: src/crpCaudit.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -g  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpCaudit.o src/crpCaudit.c
+	$(COMPILE.c) -g -DCPLEXV -DSCIPV -DXPRESSV  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpCaudit.o src/crpCaudit.c
 
 ${OBJECTDIR}/src/crpCmain.o: src/crpCmain.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -g  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpCmain.o src/crpCmain.c
+	$(COMPILE.c) -g -DCPLEXV -DSCIPV -DXPRESSV  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpCmain.o src/crpCmain.c
 
 ${OBJECTDIR}/src/crpSaudit.o: src/crpSaudit.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -g  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpSaudit.o src/crpSaudit.c
+	$(COMPILE.c) -g -DCPLEXV -DSCIPV -DXPRESSV  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpSaudit.o src/crpSaudit.c
 
 ${OBJECTDIR}/src/crpSmain.o: src/crpSmain.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -g  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpSmain.o src/crpSmain.c
+	$(COMPILE.c) -g -DCPLEXV -DSCIPV -DXPRESSV  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpSmain.o src/crpSmain.c
 
 ${OBJECTDIR}/src/crpXaudit.o: src/crpXaudit.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -g  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpXaudit.o src/crpXaudit.c
+	$(COMPILE.c) -g -DCPLEXV -DSCIPV -DXPRESSV  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpXaudit.o src/crpXaudit.c
 
 ${OBJECTDIR}/src/crpXmain.o: src/crpXmain.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -g  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpXmain.o src/crpXmain.c
+	$(COMPILE.c) -g -DCPLEXV -DSCIPV -DXPRESSV  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/crpXmain.o src/crpXmain.c
 
 # Subprojects
 .build-subprojects:

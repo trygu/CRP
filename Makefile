@@ -1,24 +1,32 @@
 ######################################################################################
 # Makefile for building: Crplib.dll
-# Note: use LPS = CLP or SOPLEX
+# use "make 32BIT=true" to compile for 32 bit system
 ######################################################################################
-
 ####### Compiler, tools and options
-CC            = gcc
-CXX           = g++
+# Environment
+CC      = $(GNUDIR)/gcc
+CXX     = $(GNUDIR)/g++
+WINDRES	= $(GNUDIR)/windres
+MKDIR	= mkdir
+RM		= rm -f
 DEFINES       = -DCPLEXV -DSCIPV -DXPRESSV -DDYNAMIC 
 
-#ifeq ($(PROCESSOR_ARCHITECTURE), AMD64) # 64bit windows detected
-#    DEFINES = -DCPLEXV -DSCIPV -DXPRESSV -DDYNAMIC -D_LP64
-#endif
+32BIT = true
+#32BIT = false
 
-CXXFLAGS = -ggdb -Wall $(DEFINES)  
-RM = rm -f
-MKDIR=mkdir
+ifeq (${32BIT}, false) # 64 bit assumed
+BITS = -m64 -D_LP64
+ARCH = x86_64
+CND_PLATFORM = MinGW-Windows64
+else
+BITS = -m32
+ARCH = x86
+CND_PLATFORM = MinGW-Windows
+endif
+
+CXXFLAGS      = -ggdb -Wall $(DEFINES) $(BITS)  
 
 # Macros
-#CND_PLATFORM=MinGW_64-Windows
-CND_PLATFORM=MinGW-Windows
 CND_DLIB_EXT=dll
 CND_CONF=Debug
 CND_DISTDIR=dist
@@ -27,40 +35,43 @@ CND_BUILDDIR=build
 # Object Directory
 OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
-# Cplex
-DIRCPLEX	  	= ../Solvers/Cplex/Cplex122
+####### Object Files
+OBJECTS     = ${OBJECTDIR}/src/Cspbridg.o ${OBJECTDIR}/src/Cspcard.o ${OBJECTDIR}/src/Cspmain.o ${OBJECTDIR}/src/Cspnet.o ${OBJECTDIR}/src/Jjsolver.o ${OBJECTDIR}/src/MT1RC.o ${OBJECTDIR}/src/My_time.o ${OBJECTDIR}/src/cspback.o ${OBJECTDIR}/src/cspbranc.o ${OBJECTDIR}/src/cspcapa.o ${OBJECTDIR}/src/cspcover.o ${OBJECTDIR}/src/cspdebug.o ${OBJECTDIR}/src/cspgomo.o ${OBJECTDIR}/src/cspheur.o ${OBJECTDIR}/src/cspprep.o ${OBJECTDIR}/src/cspprice.o ${OBJECTDIR}/src/cspsep.o ${OBJECTDIR}/src/cspsolve.o ${OBJECTDIR}/src/Versioninfo.o
 
-#XPress
-DIRXPRESS 	  	= ../Solvers/Xpress
+STAMP =#-DSTAMP
 
-INCPATH1    = -I$(DIRCPLEX)/include -I$(DIRXPRESS)
-LIBS1       = -L$(DIRCPLEX)/lib -lcplex122 -L$(DIRXPRESS) -lxprl -lxprs
-
-# SCIP with CLP
-ifeq ($(LPS),CLP)
-DIRLPS	    = E:/W7/Users/Peter-Paul/MyDocuments/Thuiswerk/Argus/JJSource/Clp-1.15.5
-LIBS        = -L$(DIRLPS)/lib -lscip -llpiclp -lnlpi.cppad -lobjscip -L$(DIRLPS)/lib/clp.mingw.x86.gnu.opt/lib -lClp -lCoinUtils
-INCPATH     = -I$(DIRLPS)/src -I$(DIRLPS)/lib/clp.mingw.x86.gnu.opt/Clp/src
+ifeq ($(32BIT),false)
+    DIRCPLEX = ../Solvers/Cplex/Cplex125/Windows/64bits
+    CPXLIBS = -L$(DIRCPLEX) -lcplex125
+    GNUDIR	    = C:/Progra~1/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin
+else
+    DIRCPLEX  = ../Solvers/Cplex/Cplex75
+    CPXLIBS = -L$(DIRCPLEX)/lib -lcplex75
+    GNUDIR	    = C:/Progra~2/mingw-w64/i686-8.1.0-win32-sjlj-rt_v6-rev0/mingw32/bin
 endif
+CPXINC	    = -I$(DIRCPLEX)/include
 
-# SCIP with soplex
-#ifeq ($(LPS),SOPLEX)
+DIRXPRESS   = ../Solvers/XPress/XPress_28/$(ARCH)
+XPRINC	    = -I$(DIRXPRESS)
+XPRLIBS	    = -L$(DIRXPRESS) -lxprl -lxprs
+
 DIRLPS	    = ../Solvers/scip-3.1.1
 DIRSOPLEX   = ../Solvers/soplex-2.0.1
-SOPLEXLIB   = soplex-2.0.1.mingw.x86.gnu.opt
-NLPILIB     = nlpi.cppad-3.1.1.mingw.x86.gnu.opt
-SCIPLIB     = scip-3.1.1.mingw.x86.gnu.opt
-OBJSCIPLIB  = objscip-3.1.1.mingw.x86.gnu.opt
-LPISPXLIB   = lpispx-3.1.1.mingw.x86.gnu.opt
+SOPLEXLIB   = soplex-2.0.1.mingw.$(ARCH).gnu.opt
+NLPILIB     = nlpi.cppad-3.1.1.mingw.$(ARCH).gnu.opt
+SCIPLIB     = scip-3.1.1.mingw.$(ARCH).gnu.opt
+OBJSCIPLIB  = objscip-3.1.1.mingw.$(ARCH).gnu.opt
+LPISPXLIB   = lpispx-3.1.1.mingw.$(ARCH).gnu.opt
+SCIPINC     = -I$(DIRLPS)/src -I$(DIRSOPLEX)/src
+SCIPLIBS    = -L$(DIRLPS)/lib -L$(DIRSOPLEX)/lib -L$(DIRLPS)/lib -l$(OBJSCIPLIB) -l$(SCIPLIB) -l$(NLPILIB) -l$(LPISPXLIB) -l$(SOPLEXLIB)
 
-LIBS        = -L$(DIRLPS)/lib -l$(SCIPLIB) -l$(LPISPXLIB) -L$(DIRSOPLEX)/lib -l$(SOPLEXLIB) -L$(DIRLPS)/lib -l$(NLPILIB) -l$(OBJSCIPLIB)
-INCPATH     = -I$(DIRLPS)/src -I$(DIRSOPLEX)/src
-#endif
+INCPATH     = $(CPXINC) $(XPRINC) $(SCIPINC)
+LIBS        = $(CPXLIBS) $(XPRLIBS) $(SCIPLIBS)
 
 ####### Object Files
 OBJECTS       = ${OBJECTDIR}/src/crpXmain.o ${OBJECTDIR}/src/crpXaudit.o ${OBJECTDIR}/src/crpSmain.o ${OBJECTDIR}/src/crpSaudit.o ${OBJECTDIR}/src/crpCmain.o ${OBJECTDIR}/src/crpCaudit.o ${OBJECTDIR}/src/WrapCRP.o ${OBJECTDIR}/src/Versioninfo.o
 
-LDLIBSOPTIONS  = $(LIBS) $(LIBS1) -static-libgcc -static-libstdc++
+LDLIBSOPTIONS  = $(LIBS) -static-libgcc -static-libstdc++
 
 ####### Compile
 all:    	
@@ -68,20 +79,18 @@ all:
 	$(RM) ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/${CSPCPX}.${CND_DLIB_EXT}
 	${MKDIR} -p ${OBJECTDIR}/src
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	windres ./src/Versioninfo.rc ${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o
-	
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpCaudit.o src/crpCaudit.c
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpCmain.o src/crpCmain.c
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpSaudit.o src/crpSaudit.c
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpSmain.o src/crpSmain.c
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpXaudit.o src/crpXaudit.c
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/crpXmain.o src/crpXmain.c
-	$(CC) -c $(CXXFLAGS) $(INCPATH) $(INCPATH1) -o ${OBJECTDIR}/src/WrapCRP.o src/WrapCRP.c
+	$(WINDRES) ./src/Versioninfo.rc ${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/src/Versioninfo.o
+
+	$(CC) -c $(CXXFLAGS) $(INCPATH) -o ${OBJECTDIR}/src/crpCaudit.o src/crpCaudit.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) -o ${OBJECTDIR}/src/crpCmain.o src/crpCmain.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) -o ${OBJECTDIR}/src/crpSaudit.o src/crpSaudit.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) -o ${OBJECTDIR}/src/crpSmain.o src/crpSmain.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) -o ${OBJECTDIR}/src/crpXaudit.o src/crpXaudit.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) -o ${OBJECTDIR}/src/crpXmain.o src/crpXmain.c
+	$(CC) -c $(CXXFLAGS) $(INCPATH) -o ${OBJECTDIR}/src/WrapCRP.o src/WrapCRP.c
 	$(CXX) -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT} ${OBJECTS} $(CXXFLAGS) ${LDLIBSOPTIONS} -shared
 	cp ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT} ../tauargus
 	
 clean:
 	$(RM) -r ${CND_BUILDDIR}/${CND_CONF}
 	$(RM) ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT}
-
-	#rm *.o

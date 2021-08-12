@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="94">
+<configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
@@ -12,10 +12,12 @@
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
                    projectFiles="true">
+      <itemPath>src/Versioninfo.rc</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>src/WrapCRP.c</itemPath>
       <itemPath>src/crpCaudit.c</itemPath>
       <itemPath>src/crpCmain.c</itemPath>
       <itemPath>src/crpSaudit.c</itemPath>
@@ -40,12 +42,23 @@
   <confs>
     <conf name="Debug" type="2">
       <toolsSet>
-        <compilerSet>default</compilerSet>
+        <compilerSet>MinGW_64bit|MinGW</compilerSet>
         <dependencyChecking>true</dependencyChecking>
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
+        <cTool>
+          <preprocessorList>
+            <Elem>CPLEXV</Elem>
+            <Elem>SCIPV</Elem>
+            <Elem>XPRESSV</Elem>
+          </preprocessorList>
+        </cTool>
       </compileType>
+      <item path="src/Versioninfo.rc" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/WrapCRP.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="src/WrapCRP.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/crpCaudit.c" ex="false" tool="0" flavor2="0">
@@ -87,6 +100,10 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="src/Versioninfo.rc" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/WrapCRP.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="src/WrapCRP.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/crpCaudit.c" ex="false" tool="0" flavor2="0">

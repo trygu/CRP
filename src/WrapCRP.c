@@ -178,7 +178,7 @@ int    CRPauditing(const char *Solver, int type)
     return retval;
 }
 
-int    CRPopenSOLVER(const char *Solver, const char *LicenseFile, const char *LogFile)
+int    CRPopenSOLVER(const char *Solver, const char *LicenseFile)
 {
     int retval = -1;
 #ifdef CPLEXV
@@ -188,7 +188,7 @@ int    CRPopenSOLVER(const char *Solver, const char *LicenseFile, const char *Lo
     if (strcmp(Solver,"SCIP")==0)   retval = S_CRPopenSOLVER();
 #endif
 #ifdef XPRESSV
-    if (strcmp(Solver,"XPRESS")==0) retval = X_CRPopenSOLVER(LogFile);
+    if (strcmp(Solver,"XPRESS")==0) retval = X_CRPopenSOLVER();
 #endif
     return retval;
 }
@@ -397,7 +397,7 @@ int do_round(char *Solver, char *InFileName, double Base, double *UpperBound, do
     //CRPSetDoubleConstant(JJMINVIOLA,0.0001);
     //CRPSetDoubleConstant(JJMAXSLACK,0.01);
 
-    if( CRPopenSOLVER(Solver, LicenseFile, LogFile) ){
+    if( CRPopenSOLVER(Solver, LicenseFile) ){
         printf("Problems with the SOLVER license\n");
 	if( LogFile ) fclose( outputfile );
         *ErrorCode = NOLICENSE;
@@ -591,13 +591,18 @@ static int  load_crp0old(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int 
 //        upl[l] = up-d;
         lpl[l] = lp;
         upl[l] = up;
-		spl[l] = sp;
+	spl[l] = sp;
         lb[l]  = lbd;
         ub[l]  = ubd;
         names[l] = CellName(k,-1,-1,-1);
 //      names[l] = (char *)malloc( strlen(username)+1 );
 //		strcpy( names[l] , username );
-        if( lp>d ){
+        
+        // to deal with negative cell values as well:
+        // Note that lp >=0
+        // if( lp>d ){ OLD USED CONDITION DID NOT WORK WITH NEGATIVE CELL VALUES
+        // want this situation: lbd < d-lp < d < d+up < ubd
+        if ((d-lp)<lbd){
             printf("ERROR: reading lp=%lf and nominal=%lf in cell=%d\n",lp,d,l);
             return(1);
         }

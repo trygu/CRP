@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/src/WrapCRP.o \
 	${OBJECTDIR}/src/crpCaudit.o \
 	${OBJECTDIR}/src/crpCmain.o \
 	${OBJECTDIR}/src/crpSaudit.o \
@@ -66,6 +67,11 @@ LDLIBSOPTIONS=
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT}: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCRP.${CND_DLIB_EXT} ${OBJECTFILES} ${LDLIBSOPTIONS} -shared
+
+${OBJECTDIR}/src/WrapCRP.o: src/WrapCRP.c
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.c) -O2  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/WrapCRP.o src/WrapCRP.c
 
 ${OBJECTDIR}/src/crpCaudit.o: src/crpCaudit.c
 	${MKDIR} -p ${OBJECTDIR}/src

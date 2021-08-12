@@ -39,8 +39,8 @@ extern int C_loadsubproblem(double*,double*);
 extern int C_unloadsubproblem(void);
 extern int C_solvesubproblem(int,int,double,double*,double*,double*,double*);
 
-static int CPXPUBLIC PrintAtBranchNode (CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle); // cplex 8
-//static int CPXPUBLIC PrintAtBranchNode (CPXENVptr env, void *cbdata, int wherefrom, void *cbhandle); // cplex 7
+//static int CPXPUBLIC PrintAtBranchNode (CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle); // cplex 8
+static int CPXPUBLIC PrintAtBranchNode (CPXENVptr env, void *cbdata, int wherefrom, void *cbhandle); // cplex 7
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -782,8 +782,8 @@ int type;
 	return 0;
 }
 
-static int CPXPUBLIC PrintAtBranchNode (CPXCENVptr env, void *cbdata, int wherefrom, void *mypointer1) // cplex 8
-//static int CPXPUBLIC PrintAtBranchNode (CPXENVptr env, void *cbdata, int wherefrom, void *mypointer1) // cplex 7
+//static int CPXPUBLIC PrintAtBranchNode (CPXCENVptr env, void *cbdata, int wherefrom, void *mypointer1) // cplex 8
+static int CPXPUBLIC PrintAtBranchNode (CPXENVptr env, void *cbdata, int wherefrom, void *mypointer1) // cplex 7
 {
    int    status;
    double bestUB,bestLB;

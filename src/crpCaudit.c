@@ -227,8 +227,8 @@ double *objval,*dj,*dual,*yval;
 		status = CPXprimopt( CRPenv, CRPsubproblem );
 	}
 	lpstatus = CPXgetstat( CRPenv, CRPsubproblem );
-	if( lpstatus==CPX_STAT_ABORT_OBJ_LIM ){   //cplex 8.0
-//	if( lpstatus==CPX_OBJ_LIM ){   //cplex 7.0
+//	if( lpstatus==CPX_STAT_ABORT_OBJ_LIM ){   //cplex 8.0
+	if( lpstatus==CPX_OBJ_LIM ){   //cplex 7.0
 		status = CPXdualopt( CRPenv, CRPsubproblem );
 		lpstatus = CPXgetstat( CRPenv, CRPsubproblem );
 	}
@@ -237,12 +237,12 @@ double *objval,*dj,*dual,*yval;
 
 
 
-	case CPX_STAT_OPTIMAL :                 // cplex 8.0
-	case CPX_STAT_OPTIMAL_INFEAS :
-	case CPX_STAT_NUM_BEST :
-//	case CPX_OPTIMAL :                       // cplex 7.0
-//	case CPX_OPTIMAL_INFEAS :
-//	case CPX_NUM_BEST_FEAS :
+//	case CPX_STAT_OPTIMAL :                 // cplex 8.0
+//	case CPX_STAT_OPTIMAL_INFEAS :
+//	case CPX_STAT_NUM_BEST :
+	case CPX_OPTIMAL :                       // cplex 7.0
+	case CPX_OPTIMAL_INFEAS :
+	case CPX_NUM_BEST_FEAS :
 
 		status = CPXgetobjval( CRPenv, CRPsubproblem , objval );
 		if( sense==-1 )

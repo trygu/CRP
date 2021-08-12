@@ -45,7 +45,7 @@ EXPORTFUNC int    X_CRPloadprob(int,double*,int,double*,int*,char*,double*,doubl
 EXPORTFUNC int    X_CRPfreeprob(void);
 EXPORTFUNC int    X_CRPprintsolution(char*,char*);
 EXPORTFUNC int    X_CRPauditing(int);
-EXPORTFUNC int    X_CRPopenSOLVER(const char*);
+EXPORTFUNC int    X_CRPopenSOLVER(void);
 EXPORTFUNC int    X_CRPcloseSOLVER(void);
 #endif
 
