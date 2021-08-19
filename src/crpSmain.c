@@ -586,12 +586,12 @@ int large;
     SCIPfreeTransform(CRPenvS);
     for (k = 0; k < CRPncell; ++k)
         SCIPreleaseVar(CRPenvS, SCIPcols+k);
-	free( SCIPcols );
+    free( SCIPcols );
     for (k = 0; k < CRPnsum; ++k)
         SCIPreleaseCons(CRPenvS, SCIProws+k);
-	free( SCIProws );
+    free( SCIProws );
 
-	return 0;
+    return 0;
 }
 
 
@@ -707,6 +707,7 @@ char *nsolution,*nstatistics;
 	int *count;
 	double distance;
 	FILE *f,*g;
+        g=NULL; // PWOF intialisation
 
 	if( nstatistics ){
 		l = 0;
@@ -946,7 +947,8 @@ SCIP_DECL_EVENTEXEC(eventExecTotal)
 {  /*lint --e{715}*/
 
     double bestUB,bestLB;
-    int    nodecount,nodeleft,statusS;
+    //int    nodecount,nodeleft,statusS;
+    int    nodecount,nodeleft;
     double res;
 
    if (CRPabort) return SCIP_OKAY;
@@ -955,7 +957,10 @@ SCIP_DECL_EVENTEXEC(eventExecTotal)
    assert(strcmp(SCIPeventhdlrGetName(eventhdlr), EVENTHDLR_NAME) == 0);
    assert(event != NULL);
    assert(scip != NULL);
-   assert(SCIPeventGetType(event) == SCIP_EVENTTYPE_VAREVENT | SCIP_EVENTTYPE_NODEEVENT | SCIP_EVENTTYPE_LPEVENT | SCIP_EVENTTYPE_SOLEVENT | SCIP_EVENTTYPE_ROWEVENT);
+   assert((SCIPeventGetType(event) == SCIP_EVENTTYPE_VAREVENT) || (SCIPeventGetType(event) == SCIP_EVENTTYPE_NODEEVENT) ||
+           (SCIPeventGetType(event) == SCIP_EVENTTYPE_LPEVENT) || (SCIPeventGetType(event) == SCIP_EVENTTYPE_SOLEVENT) ||
+           (SCIPeventGetType(event) == SCIP_EVENTTYPE_ROWEVENT));
+   //assert(SCIPeventGetType(event) == SCIP_EVENTTYPE_VAREVENT | SCIP_EVENTTYPE_NODEEVENT | SCIP_EVENTTYPE_LPEVENT | SCIP_EVENTTYPE_SOLEVENT | SCIP_EVENTTYPE_ROWEVENT);
    //assert(SCIPeventGetType(event) == SCIP_EVENTTYPE_VAREVENT | SCIP_EVENTTYPE_NODEEVENT | SCIP_EVENTTYPE_LPEVENT | SCIP_EVENTTYPE_SOLEVENT);
 //   assert(SCIPeventGetType(event) == SCIP_EVENTTYPE_VAREVENT );
 //   assert(SCIPeventGetType(event) == SCIP_EVENTTYPE_NODEEVENT );
@@ -997,7 +1002,8 @@ SCIP_DECL_EVENTEXEC(eventExecTotal)
                 {
                     CRPabort = 1;
                 }
-                statusS = SCIPsetRealParam(CRPenvS, "limits/time", MaximumTime);
+                //statusS = SCIPsetRealParam(CRPenvS, "limits/time", MaximumTime);
+                SCIPsetRealParam(CRPenvS, "limits/time", MaximumTime);
             }
         }
    }

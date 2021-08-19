@@ -191,10 +191,11 @@ double *lb,*ub;
 
 int C_unloadsubproblem()
 {
-	int status;
+    //int status; // PWOF: returned value is not used
 
-    status = CPXfreeprob (CRPenv, &CRPsubproblem);
-	return 0;
+    //status = CPXfreeprob (CRPenv, &CRPsubproblem);
+    CPXfreeprob (CRPenv, &CRPsubproblem);
+    return 0;    
 }
 
 
@@ -203,58 +204,76 @@ int sense,var;
 double bound;
 double *objval,*dj,*dual,*yval;
 {
-	int    k,status,lpstatus,surplus,nels,mstart,*mrwind;
+	//int    k,status,lpstatus,surplus,nels,mstart,*mrwind;
+        int    k,lpstatus,surplus,nels,mstart,*mrwind;
 	double obj,val,*dmatval;
 	char   type;
 
 	if( sense==1 ){
 		obj = 1;
-		status = CPXchgobj( CRPenv, CRPsubproblem, 1, &var, &obj);
-	    status = CPXgetub( CRPenv, CRPsubproblem, &val, var, var );
+		//status = CPXchgobj( CRPenv, CRPsubproblem, 1, &var, &obj);
+                CPXchgobj( CRPenv, CRPsubproblem, 1, &var, &obj);
+                //status = CPXgetub( CRPenv, CRPsubproblem, &val, var, var );
+                CPXgetub( CRPenv, CRPsubproblem, &val, var, var );
 		if( bound < val ){
 			type = 'U';
-			status = CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &bound);
+			//status = CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &bound);
+                        CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &bound);
 		}
-		status = CPXprimopt( CRPenv, CRPsubproblem );
+		//status = CPXprimopt( CRPenv, CRPsubproblem );
+                CPXprimopt( CRPenv, CRPsubproblem );
 	} else {
 		obj = -1;
-		status = CPXchgobj( CRPenv, CRPsubproblem, 1, &var, &obj);
-	    status = CPXgetlb( CRPenv, CRPsubproblem, &val, var, var );
+		//status = CPXchgobj( CRPenv, CRPsubproblem, 1, &var, &obj);
+                CPXchgobj( CRPenv, CRPsubproblem, 1, &var, &obj);
+                //status = CPXgetlb( CRPenv, CRPsubproblem, &val, var, var );
+                CPXgetlb( CRPenv, CRPsubproblem, &val, var, var );
 		if( bound > val ){
 			type = 'L';
-			status = CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &bound);
+			//status = CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &bound);
+                        CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &bound);
 		}
-		status = CPXprimopt( CRPenv, CRPsubproblem );
+		//status = CPXprimopt( CRPenv, CRPsubproblem );
+                CPXprimopt( CRPenv, CRPsubproblem );
 	}
 	lpstatus = CPXgetstat( CRPenv, CRPsubproblem );
-//	if( lpstatus==CPX_STAT_ABORT_OBJ_LIM ){   //cplex 8.0
+#ifdef cplex8
+	if( lpstatus==CPX_STAT_ABORT_OBJ_LIM ){   //cplex 8.0
+#else 
 	if( lpstatus==CPX_OBJ_LIM ){   //cplex 7.0
-		status = CPXdualopt( CRPenv, CRPsubproblem );
+#endif
+		//status = CPXdualopt( CRPenv, CRPsubproblem );
+                CPXdualopt( CRPenv, CRPsubproblem );
 		lpstatus = CPXgetstat( CRPenv, CRPsubproblem );
 	}
 
 	switch( lpstatus ){
 
 
-
-//	case CPX_STAT_OPTIMAL :                 // cplex 8.0
-//	case CPX_STAT_OPTIMAL_INFEAS :
-//	case CPX_STAT_NUM_BEST :
+#ifdef cplex8
+	case CPX_STAT_OPTIMAL :                 // cplex 8.0
+	case CPX_STAT_OPTIMAL_INFEAS :
+	case CPX_STAT_NUM_BEST :
+#else
 	case CPX_OPTIMAL :                       // cplex 7.0
 	case CPX_OPTIMAL_INFEAS :
 	case CPX_NUM_BEST_FEAS :
+#endif
 
-		status = CPXgetobjval( CRPenv, CRPsubproblem , objval );
+		//status = CPXgetobjval( CRPenv, CRPsubproblem , objval );
+                CPXgetobjval( CRPenv, CRPsubproblem , objval );
 		if( sense==-1 )
 			(*objval) = -(*objval);
 
 		if( yval )
-			status = CPXgetx( CRPenv, CRPsubproblem, yval, 0, CRPncell-1 );
+			//status = CPXgetx( CRPenv, CRPsubproblem, yval, 0, CRPncell-1 );
+                        CPXgetx( CRPenv, CRPsubproblem, yval, 0, CRPncell-1 );
 		
 		if( dj==NULL || dual==NULL )
 			break;
 
-		status = CPXgetpi( CRPenv, CRPsubproblem, dual, 0, CRPnsum-1 );
+		//status = CPXgetpi( CRPenv, CRPsubproblem, dual, 0, CRPnsum-1 );
+                CPXgetpi( CRPenv, CRPsubproblem, dual, 0, CRPnsum-1 );
 			
 		mrwind   = (int *)malloc( CRPnsum  * sizeof(int) );
 		dmatval  = (double *)malloc( CRPnsum  * sizeof(double) );
@@ -280,16 +299,19 @@ double *objval,*dj,*dual,*yval;
 //	status = CPXwriteprob( CRPenv, CRPsubproblem , "CRPsubproblem2.lp", NULL);
 
 	obj = 0;
-	status = CPXchgobj( CRPenv, CRPsubproblem, 1, &var, &obj);
+	//status = CPXchgobj( CRPenv, CRPsubproblem, 1, &var, &obj);
+        CPXchgobj( CRPenv, CRPsubproblem, 1, &var, &obj);
 	if( sense==1 ){
 		if( bound < val ){
 			type = 'U';
-			status = CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &val);
+			//status = CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &val);
+                        CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &val);
 		}
 	} else {
 		if( bound > val ){
 			type = 'L';
-			status = CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &val);
+			//status = CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &val);
+                        CPXchgbds( CRPenv, CRPsubproblem, 1, &var, &type, &val);
 		}
 	}
 	return lpstatus;

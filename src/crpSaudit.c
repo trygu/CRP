@@ -213,10 +213,11 @@ double *lb,*ub;
 
 int S_unloadsubproblem()
 {
-    SCIP_RETCODE statusS;
+    //SCIP_RETCODE statusS; // PWOF: statusS is not used
 
-    statusS = SCIPlpiFree(&CRPsubproblemS);
-	return 0;
+    //statusS = SCIPlpiFree(&CRPsubproblemS);
+    SCIPlpiFree(&CRPsubproblemS);
+    return 0;
 }
 
 int S_solvesubproblem(sense,var,bound,objval,dj,dual,yval)
@@ -226,52 +227,65 @@ double *objval,*dj,*dual,*yval;
 {
 	int    k,lpstatus,nels,mstart,*mrwind;
 	double obj,val,*dmatval;
-	char   type;
-    SCIP_RETCODE statusS;
+	//char   type;
+        //SCIP_RETCODE statusS;
 
 	if( sense==1 ){
 		obj = 1;
-        statusS = SCIPlpiChgObj(CRPsubproblemS, 1, &var, &obj);
-        statusS = SCIPlpiGetBounds(CRPsubproblemS, var, var, 0, &val);
+                //statusS = SCIPlpiChgObj(CRPsubproblemS, 1, &var, &obj);
+                SCIPlpiChgObj(CRPsubproblemS, 1, &var, &obj);
+                //statusS = SCIPlpiGetBounds(CRPsubproblemS, var, var, 0, &val);
+                SCIPlpiGetBounds(CRPsubproblemS, var, var, 0, &val);
 		if( bound < val ){
-			type = 'U';
-            statusS = SCIPlpiGetBounds(CRPsubproblemS, var, var, 0, &bound);
+                    //type = 'U'; // PWOF: never used
+                    //statusS = SCIPlpiGetBounds(CRPsubproblemS, var, var, 0, &bound);
+                    SCIPlpiGetBounds(CRPsubproblemS, var, var, 0, &bound);
 		}
-        statusS = SCIPlpiSolvePrimal(CRPsubproblemS);
+                //statusS = SCIPlpiSolvePrimal(CRPsubproblemS);
+                SCIPlpiSolvePrimal(CRPsubproblemS);
 	} else {
 		obj = -1;
-        statusS = SCIPlpiChgObj(CRPsubproblemS, 1, &var, &obj);
-        statusS = SCIPlpiGetBounds(CRPsubproblemS, var, var, &val, 0);
+                //statusS = SCIPlpiChgObj(CRPsubproblemS, 1, &var, &obj);
+                SCIPlpiChgObj(CRPsubproblemS, 1, &var, &obj);
+                //statusS = SCIPlpiGetBounds(CRPsubproblemS, var, var, &val, 0);
+                SCIPlpiGetBounds(CRPsubproblemS, var, var, &val, 0);
 		if( bound > val ){
-			type = 'L';
-            statusS = SCIPlpiGetBounds(CRPsubproblemS, var, var, &bound, 0);
+			//type = 'L'; // PWOF: never used
+                        //statusS = SCIPlpiGetBounds(CRPsubproblemS, var, var, &bound, 0);
+                        SCIPlpiGetBounds(CRPsubproblemS, var, var, &bound, 0);
 		}
-        statusS = SCIPlpiSolvePrimal(CRPsubproblemS);
+                //statusS = SCIPlpiSolvePrimal(CRPsubproblemS);
+                SCIPlpiSolvePrimal(CRPsubproblemS);
 	}
 
     if (SCIPlpiIsObjlimExc(CRPsubproblemS))
-        statusS = SCIPlpiSolveDual(CRPsubproblemS);
+        //statusS = SCIPlpiSolveDual(CRPsubproblemS);
+        SCIPlpiSolveDual(CRPsubproblemS);
 
     if (SCIPlpiIsOptimal (CRPsubproblemS))
     {
-        statusS = SCIPlpiGetSol(CRPsubproblemS, objval, 0, 0, 0, 0);
+        //statusS = SCIPlpiGetSol(CRPsubproblemS, objval, 0, 0, 0, 0);
+        SCIPlpiGetSol(CRPsubproblemS, objval, 0, 0, 0, 0);
         if( sense==-1 )
             (*objval) = -(*objval);
 
         if( yval )
-            statusS = SCIPlpiGetSol(CRPsubproblemS, 0, yval, 0, 0, 0);
+            //statusS = SCIPlpiGetSol(CRPsubproblemS, 0, yval, 0, 0, 0);
+            SCIPlpiGetSol(CRPsubproblemS, 0, yval, 0, 0, 0);
 
         if( dj==NULL || dual==NULL ){
 			lpstatus = 0;
             goto OUT; //break;
 		}
 
-        statusS = SCIPlpiGetSol(CRPsubproblemS, 0, 0, dual, 0, 0);
+        //statusS = SCIPlpiGetSol(CRPsubproblemS, 0, 0, dual, 0, 0);
+        SCIPlpiGetSol(CRPsubproblemS, 0, 0, dual, 0, 0);
 
         mrwind   = (int *)malloc( CRPnsum  * sizeof(int) );
         dmatval  = (double *)malloc( CRPnsum  * sizeof(double) );
         for(k=0;k<CRPncell;k++){
-            statusS = SCIPlpiGetCols(CRPsubproblemS, k, k, 0, 0, &nels, &mstart, mrwind, dmatval);
+            //statusS = SCIPlpiGetCols(CRPsubproblemS, k, k, 0, 0, &nels, &mstart, mrwind, dmatval);
+            SCIPlpiGetCols(CRPsubproblemS, k, k, 0, 0, &nels, &mstart, mrwind, dmatval);
             dj[k] = 0;
             while(nels--)
                 dj[k] -= dual[mrwind[nels]]*dmatval[nels];
@@ -290,16 +304,19 @@ OUT:
     //statusS = SCIPlpiWriteLP(CRPsubproblemS, "CRPsubproblemS2.lp");
 
 	obj = 0;
-    statusS = SCIPlpiChgObj(CRPsubproblemS, 1, &var, &obj);
+        //statusS = SCIPlpiChgObj(CRPsubproblemS, 1, &var, &obj);
+        SCIPlpiChgObj(CRPsubproblemS, 1, &var, &obj);
 	if( sense==1 ){
 		if( bound < val ){
-			type = 'U';
-            statusS = SCIPlpiChgBounds(CRPsubproblemS, 1, &var, 0, &val);
+                    //type = 'U'; // PWOF: never used
+                    //statusS = SCIPlpiChgBounds(CRPsubproblemS, 1, &var, 0, &val);
+                    SCIPlpiChgBounds(CRPsubproblemS, 1, &var, 0, &val);
 		}
 	} else {
 		if( bound > val ){
-			type = 'L';
-            statusS = SCIPlpiChgBounds(CRPsubproblemS, 1, &var, &val, 0);
+                    //type = 'L'; // PWOF: never used
+                    //statusS = SCIPlpiChgBounds(CRPsubproblemS, 1, &var, &val, 0);
+                    SCIPlpiChgBounds(CRPsubproblemS, 1, &var, &val, 0);
 		}
 	}
 	return lpstatus;

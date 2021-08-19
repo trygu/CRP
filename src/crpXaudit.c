@@ -225,8 +225,9 @@ double *lb,*ub;
 
 int X_unloadsubproblem()
 {
-	int status;
-	status = XPRSdestroyprob( CRPsubproblem );
+	//int status;  //PWOF: return value is never used
+	//status = XPRSdestroyprob( CRPsubproblem );
+        XPRSdestroyprob( CRPsubproblem );
 	return 0;
 }
 
@@ -236,7 +237,8 @@ int sense,var;
 double bound;
 double *objval,*dj,*dual;
 {
-	int    k,status,lpstatus,nels;
+	//int    k,status,lpstatus,nels;
+        int    k,lpstatus,nels;
 	double obj,val;
 	int    *mrwind;
 	double *dmatval;
@@ -246,24 +248,33 @@ double *objval,*dj,*dual;
 //	status = XPRSsetdblcontrol( CRPsubproblem , XPRS_MIPABSCUTOFF , bound );
 	if( sense==1 ){
 		obj = 1;
-		status = XPRSchgobj( CRPsubproblem, 1, &var, &obj);
-	    status = XPRSgetub( CRPsubproblem, &val, var, var );
+		//status = XPRSchgobj( CRPsubproblem, 1, &var, &obj);
+                XPRSchgobj( CRPsubproblem, 1, &var, &obj);
+                //status = XPRSgetub( CRPsubproblem, &val, var, var );
+                XPRSgetub( CRPsubproblem, &val, var, var );
 		if( bound < val ){
 			type = 'U';
-			status = XPRSchgbounds( CRPsubproblem, 1, &var, &type, &bound);
+			//status = XPRSchgbounds( CRPsubproblem, 1, &var, &type, &bound);
+                        XPRSchgbounds( CRPsubproblem, 1, &var, &type, &bound);
 		}
-		status = XPRSmaxim( CRPsubproblem , "d" );
+		//status = XPRSmaxim( CRPsubproblem , "d" );
+                XPRSmaxim( CRPsubproblem , "d" );
 	} else {
 		obj = -1;
-		status = XPRSchgobj( CRPsubproblem, 1, &var, &obj);
-	    status = XPRSgetlb( CRPsubproblem, &val, var, var );
+		//status = XPRSchgobj( CRPsubproblem, 1, &var, &obj);
+                XPRSchgobj( CRPsubproblem, 1, &var, &obj);
+                //status = XPRSgetlb( CRPsubproblem, &val, var, var );
+                XPRSgetlb( CRPsubproblem, &val, var, var );
 		if( bound > val ){
 			type = 'L';
-			status = XPRSchgbounds( CRPsubproblem, 1, &var, &type, &bound);
+			//status = XPRSchgbounds( CRPsubproblem, 1, &var, &type, &bound);
+                        XPRSchgbounds( CRPsubproblem, 1, &var, &type, &bound);
 		}
-		status = XPRSmaxim( CRPsubproblem , "d" );
+		//status = XPRSmaxim( CRPsubproblem , "d" );
+                XPRSmaxim( CRPsubproblem , "d" );
 	}
-	status = XPRSgetintattrib( CRPsubproblem , XPRS_LPSTATUS , &lpstatus );
+	//status = XPRSgetintattrib( CRPsubproblem , XPRS_LPSTATUS , &lpstatus );
+        XPRSgetintattrib( CRPsubproblem , XPRS_LPSTATUS , &lpstatus );
 
 	switch( lpstatus ){
 	case XPRS_LP_CUTOFF :
@@ -276,7 +287,8 @@ double *objval,*dj,*dual;
 		break;
 	case XPRS_LP_INFEAS :
 		printf("ERROR: subproblem infeas! (status=%d)\n",lpstatus);
-    	status = XPRSwriteprob( CRPsubproblem , "CRPsubproblem","l");
+                //status = XPRSwriteprob( CRPsubproblem , "CRPsubproblem","l");
+                XPRSwriteprob( CRPsubproblem , "CRPsubproblem","l");
 		lpstatus = 1;
 		break;
 	case XPRS_LP_UNBOUNDED :
@@ -288,15 +300,16 @@ double *objval,*dj,*dual;
 		lpstatus = 1;
 		break;
 	case XPRS_LP_OPTIMAL :
-
-		status = XPRSgetdblattrib( CRPsubproblem , XPRS_LPOBJVAL, objval );
+		//status = XPRSgetdblattrib( CRPsubproblem , XPRS_LPOBJVAL, objval );
+                XPRSgetdblattrib( CRPsubproblem , XPRS_LPOBJVAL, objval );
 		if( sense==-1 )
 			(*objval) = -(*objval);
 
 		if( dj==NULL || dual==NULL )
 			break;
 
-		status = XPRSgetsol( CRPsubproblem , NULL, NULL, dual, NULL );
+		//status = XPRSgetsol( CRPsubproblem , NULL, NULL, dual, NULL );
+                XPRSgetsol( CRPsubproblem , NULL, NULL, dual, NULL );
 
 		mrwind   = (int *)malloc( CRPnsum  * sizeof(int) );
 		dmatval  = (double *)malloc( CRPnsum  * sizeof(double) );
@@ -318,16 +331,19 @@ double *objval,*dj,*dual;
 //	status = XPRSwriteprob( CRPsubproblem , "CRPsubproblem","l");
 
 	obj = 0;
-	status = XPRSchgobj( CRPsubproblem, 1, &var, &obj);
+	//status = XPRSchgobj( CRPsubproblem, 1, &var, &obj);
+        XPRSchgobj( CRPsubproblem, 1, &var, &obj);
 	if( sense==1 ){
 		if( bound < val ){
 			type = 'U';
-			status = XPRSchgbounds( CRPsubproblem, 1, &var, &type, &val);
+			//status = XPRSchgbounds( CRPsubproblem, 1, &var, &type, &val);
+                        XPRSchgbounds( CRPsubproblem, 1, &var, &type, &val);
 		}
 	} else {
 		if( bound > val ){
 			type = 'L';
-			status = XPRSchgbounds( CRPsubproblem, 1, &var, &type, &val);
+			//status = XPRSchgbounds( CRPsubproblem, 1, &var, &type, &val);
+                        XPRSchgbounds( CRPsubproblem, 1, &var, &type, &val);
 		}
 	}
 	return lpstatus;

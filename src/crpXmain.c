@@ -70,8 +70,9 @@ int X_CRPopenSOLVER()
 
 int X_CRPcloseSOLVER()
 {
-	int status;
-	status = XPRSfree();
+	//int status; // PWOF: return values never used
+	//status = XPRSfree();
+        XPRSfree();
 	return 0;
 }
 
@@ -627,6 +628,7 @@ char *nsolution,*nstatistics;
 	int *count;
 	double distance;
 	FILE *f,*g;
+        g=NULL; // PWOF intialisation
 
 
 	if( nstatistics ){
@@ -829,7 +831,8 @@ int type;
 
 static void X_SaveSolution(int large)
 {
-	int    ncol,status,i;
+	//int    ncol,status,i;
+        int    ncol,i;
 	double *xval;
 
 
@@ -842,7 +845,8 @@ static void X_SaveSolution(int large)
 		printf("ERROR: not enough memory for save an ILP solution\n");
 		return;
 	}
-    status = XPRSgetmipsol( CRPmaster , xval , NULL );
+        //status = XPRSgetmipsol( CRPmaster , xval , NULL );
+        XPRSgetmipsol( CRPmaster , xval , NULL );
 
 	for(i=0;i<CRPncell;i++){
 		if( xval[i]>ZERO )
@@ -862,7 +866,8 @@ static void X_SaveSolution(int large)
 		}
 	}
 	free(xval);
-	status = XPRSgetdblattrib( CRPmaster , XPRS_MIPOBJVAL, &CRPobjval );
+	//status = XPRSgetdblattrib( CRPmaster , XPRS_MIPOBJVAL, &CRPobjval );
+        XPRSgetdblattrib( CRPmaster , XPRS_MIPOBJVAL, &CRPobjval );
 //	printf(" NEW output pattern with relative objective value %lf\n",CRPobjval);
 	CRPfeasible++;
 }

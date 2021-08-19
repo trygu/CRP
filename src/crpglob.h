@@ -42,13 +42,12 @@ double MIN_VIOLA;      /* minimum violation for valid cuts         */
 double MAX_SLACK;      /* maximum slack for cuts in the LP         */
 
 
-// for statistic outputs
+#ifndef __WRAPCRP_H
+// for statistic outputs, not to be used in WrapCRP.c
 
 static float          CRPtime1=-1.0;
 static float          CRPtime2=-1.0;
 static float          CRPtime3=-1.0;
 static int            CRPnodes;
 static int            CRPaudit = -1;
-
-
-
+#endif

@@ -16,9 +16,8 @@
 #include <time.h>
 #include <math.h>
 //#include <direct.h>
-#include "crpglob.h"
 #include "WrapCRP.h"
-
+#include "crpglob.h"
 
 char *fsolution;
 char *fstatistic;
@@ -359,11 +358,10 @@ int do_round(char *Solver, char *InFileName, double Base, double *UpperBound, do
     clock_t  t1,t2,t3,t4;
     int      dim,base,auditing;
     double   ttime1,ttime2,d;
-    char     slicmsg[256] = "";
     struct tm   *newtime;
     time_t      aclock;
     FILE        *file,*outputfile;
-
+    outputfile=NULL; // PWOF: intialisation
 
     base     = (int)Base;
     auditing = Auditing;

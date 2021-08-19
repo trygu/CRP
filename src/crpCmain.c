@@ -39,8 +39,11 @@ extern int C_loadsubproblem(double*,double*);
 extern int C_unloadsubproblem(void);
 extern int C_solvesubproblem(int,int,double,double*,double*,double*,double*);
 
-//static int CPXPUBLIC PrintAtBranchNode (CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle); // cplex 8
-static int CPXPUBLIC PrintAtBranchNode (CPXENVptr env, void *cbdata, int wherefrom, void *cbhandle); // cplex 7
+#ifdef cplex8
+    static int CPXPUBLIC PrintAtBranchNode (CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle); // cplex 8
+#else
+    static int CPXPUBLIC PrintAtBranchNode (CPXENVptr env, void *cbdata, int wherefrom, void *cbhandle); // cplex 7
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -586,6 +589,8 @@ char *nsolution,*nstatistics;
 	int *count;
 	double distance;
 	FILE *f,*g;
+        
+        g=NULL; // PWOF initialisation
 
 	if( nstatistics ){
 		l = 0;
@@ -782,8 +787,11 @@ int type;
 	return 0;
 }
 
-//static int CPXPUBLIC PrintAtBranchNode (CPXCENVptr env, void *cbdata, int wherefrom, void *mypointer1) // cplex 8
-static int CPXPUBLIC PrintAtBranchNode (CPXENVptr env, void *cbdata, int wherefrom, void *mypointer1) // cplex 7
+#ifdef cplex8
+    static int CPXPUBLIC PrintAtBranchNode (CPXCENVptr env, void *cbdata, int wherefrom, void *mypointer1) // cplex 8
+#else
+    static int CPXPUBLIC PrintAtBranchNode (CPXENVptr env, void *cbdata, int wherefrom, void *mypointer1) // cplex 7
+#endif
 {
    int    status;
    double bestUB,bestLB;
