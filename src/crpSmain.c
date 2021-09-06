@@ -957,9 +957,11 @@ SCIP_DECL_EVENTEXEC(eventExecTotal)
    assert(strcmp(SCIPeventhdlrGetName(eventhdlr), EVENTHDLR_NAME) == 0);
    assert(event != NULL);
    assert(scip != NULL);
-   assert((SCIPeventGetType(event) == SCIP_EVENTTYPE_VAREVENT) || (SCIPeventGetType(event) == SCIP_EVENTTYPE_NODEEVENT) ||
+   
+   /*assert((SCIPeventGetType(event) == SCIP_EVENTTYPE_VAREVENT) || (SCIPeventGetType(event) == SCIP_EVENTTYPE_NODEEVENT) ||
            (SCIPeventGetType(event) == SCIP_EVENTTYPE_LPEVENT) || (SCIPeventGetType(event) == SCIP_EVENTTYPE_SOLEVENT) ||
            (SCIPeventGetType(event) == SCIP_EVENTTYPE_ROWEVENT));
+   */
    //assert(SCIPeventGetType(event) == SCIP_EVENTTYPE_VAREVENT | SCIP_EVENTTYPE_NODEEVENT | SCIP_EVENTTYPE_LPEVENT | SCIP_EVENTTYPE_SOLEVENT | SCIP_EVENTTYPE_ROWEVENT);
    //assert(SCIPeventGetType(event) == SCIP_EVENTTYPE_VAREVENT | SCIP_EVENTTYPE_NODEEVENT | SCIP_EVENTTYPE_LPEVENT | SCIP_EVENTTYPE_SOLEVENT);
 //   assert(SCIPeventGetType(event) == SCIP_EVENTTYPE_VAREVENT );

@@ -349,7 +349,7 @@ int do_round(char *Solver, char *InFileName, double Base, double *UpperBound, do
              long MaxTime, long ZeroRestricted, char *NamePathExe,
              double *MaxJump, long *NumberJump, double *UsedTime, long *ErrorCode)
 {
-    int    ncells,nsums,i,j;
+    int    ncells,nsums,i,j=0;
     int    *ncard,*list,*weight;
     double *data,*lpl,*upl,*spl,*lb,*ub,*rhs;
     char   *status;
@@ -357,7 +357,7 @@ int do_round(char *Solver, char *InFileName, double Base, double *UpperBound, do
     signed char *val;
     clock_t  t1,t2,t3,t4;
     int      dim,base,auditing;
-    double   ttime1,ttime2,d;
+    double   ttime1,ttime2,d=0.0;
     struct tm   *newtime;
     time_t      aclock;
     FILE        *file,*outputfile;

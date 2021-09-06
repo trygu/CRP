@@ -28,7 +28,7 @@ else
     GNUDIR       = C:/Progra~2/mingw-w64/i686-8.1.0-win32-sjlj-rt_v6-rev0/mingw32/bin
 endif
 
-CXXFLAGS         = -ggdb -g -Og -Wall $(DEFINES) $(BITS)
+CXXFLAGS         = -g -O2 -Wall $(DEFINES) $(BITS)
 
 # Macros
 CND_DLIB_EXT     = dll
