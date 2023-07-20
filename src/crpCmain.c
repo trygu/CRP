@@ -414,8 +414,10 @@ int large;
     status = CPXsetintparam (CRPenv, CPX_PARAM_REDUCE, 0);
 
     status = CPXsetlpcallbackfunc ( CRPenv, PrintAtBranchNode, NULL );
+    printf("status = %d for CPXsetlpcallbackfunc\n", status);
     status = CPXsetmipcallbackfunc ( CRPenv, PrintAtBranchNode, NULL );
-
+    printf("status = %d for CPXsetmipcallbackfunc\n", status);
+    
     //status = CPXsetdblparam ( CRPenv, CPX_PARAM_TILIM, MAX_TIME);
 
     status = CPXmipopt( CRPenv, CRPmaster );
@@ -796,7 +798,7 @@ int type;
    int    status;
    double bestUB,bestLB;
    int    nodecount,nodeleft,feasible,res;
- 
+
    if( CRPabort ) return 1;
 
    switch( wherefrom ){

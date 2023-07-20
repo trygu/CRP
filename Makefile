@@ -1,7 +1,12 @@
 ######################################################################################
 # Makefile for building: Crplib.dll
 # use "make 32BIT=true" to compile for 32 bit system
+# use "make SOLVER=foo" to compile only for selected LP-solvers
+#	    where foo s a comma separated list
+#	    Allowed solvers: CP=Cplex, XP=Xpress, SC=SCIP
+#	    So e.g. "make SOLVER=SC,CP" would only compile for Cplex and SCIP
 ######################################################################################
+
 ####### Compiler, tools and options
 # Environment
 CC               = $(GNUDIR)/gcc
@@ -10,7 +15,7 @@ WINDRES          = $(GNUDIR)/windres
 MKDIR            = mkdir
 RM               = rm -f
 CP               = cp -p
-DEFINES          = -DCPLEXV -DSCIPV -DXPRESSV -DDYNAMIC
+DEFINES		 = -DDYNAMIC
 
 32BIT            = true
 #32BIT           = false
@@ -25,10 +30,9 @@ else
     BITS         = -m32
     ARCH         = x86
     CND_PLATFORM = MinGW-Windows
+    DEFINES      += -Dcplex8
     GNUDIR       = C:/Progra~2/mingw-w64/i686-8.1.0-win32-sjlj-rt_v6-rev0/mingw32/bin
 endif
-
-CXXFLAGS         = -g -O2 -Wall $(DEFINES) $(BITS)
 
 # Macros
 CND_DLIB_EXT     = dll
@@ -36,24 +40,39 @@ CND_CONF         = Debug
 CND_DISTDIR      = dist
 CND_BUILDDIR     = build
 
+# Switch to activate debug info in JJ-CRP-files
+STAMP            =#-DSTAMP
+
+# Solvers
+SOLVER = CP,XP,SC# default is all three
+comma:=,
+null:=
+space:= $(null) #
+ifeq (,$(SOLVER)) # if not specified, use defaults
+    USEDSOLVERS = CP XP SC
+else
+    USEDSOLVERS = $(subst $(comma), $(space), $(SOLVER))
+endif
+
 # Object Directory
 OBJECTDIR        = $(CND_BUILDDIR)/$(CND_CONF)/$(CND_PLATFORM)
 
 ####### Object Files
 OBJECTS          = $(OBJECTDIR)/src/Cspbridg.o $(OBJECTDIR)/src/Cspcard.o $(OBJECTDIR)/src/Cspmain.o $(OBJECTDIR)/src/Cspnet.o $(OBJECTDIR)/src/Jjsolver.o $(OBJECTDIR)/src/MT1RC.o $(OBJECTDIR)/src/My_time.o $(OBJECTDIR)/src/cspback.o $(OBJECTDIR)/src/cspbranc.o $(OBJECTDIR)/src/cspcapa.o $(OBJECTDIR)/src/cspcover.o $(OBJECTDIR)/src/cspdebug.o $(OBJECTDIR)/src/cspgomo.o $(OBJECTDIR)/src/cspheur.o $(OBJECTDIR)/src/cspprep.o $(OBJECTDIR)/src/cspprice.o $(OBJECTDIR)/src/cspsep.o $(OBJECTDIR)/src/cspsolve.o $(OBJECTDIR)/src/Versioninfo.o
 
-STAMP            =#-DSTAMP
-
 ifeq ($(32BIT),false)
     DIRCPLEX     = ../Solvers/Cplex/Cplex125/Windows/64bits
     CPXLIBS      = -L$(DIRCPLEX) -lcplex125
 else
-    DIRCPLEX     = ../Solvers/Cplex/Cplex75
-    CPXLIBS      = -L$(DIRCPLEX)/lib -lcplex75
+    #DIRCPLEX     = ../Solvers/Cplex/Cplex75
+    #CPXLIBS      = -L$(DIRCPLEX)/lib -lcplex75
+    DIRCPLEX     = ../Solvers/Cplex/Cplex122
+    CPXLIBS      = -L$(DIRCPLEX)/lib -lcplex122
 endif
 CPXINC           = -I$(DIRCPLEX)/include
 
-DIRXPRESS        = ../Solvers/XPress/XPress_28/$(ARCH)
+#DIRXPRESS        = ../Solvers/XPress/XPress_28/$(ARCH)
+DIRXPRESS        = ../Solvers/XPress/19
 XPRINC           = -I$(DIRXPRESS)
 XPRLIBS          = -L$(DIRXPRESS) -lxprl -lxprs
 
@@ -67,13 +86,29 @@ LPISPXLIB        = lpispx-3.1.1.mingw.$(ARCH).gnu.opt
 SCIPINC          = -I$(DIRLPS)/src -I$(DIRSOPLEX)/src
 SCIPLIBS         = -L$(DIRLPS)/lib -L$(DIRSOPLEX)/lib -L$(DIRLPS)/lib -l$(OBJSCIPLIB) -l$(SCIPLIB) -l$(NLPILIB) -l$(LPISPXLIB) -l$(SOPLEXLIB)
 
-INCPATH          = $(CPXINC) $(XPRINC) $(SCIPINC)
-LIBS             = $(CPXLIBS) $(XPRLIBS) $(SCIPLIBS)
+ifneq (,$(findstring CP,$(USEDSOLVERS)))
+	DEFINES += -DCPLEXV
+	INCPATH += $(CPXINC)
+	LIBS += $(CPXLIBS)
+endif
+ifneq (,$(findstring XP,$(USEDSOLVERS)))
+	DEFINES += -DXPRESSV
+	INCPATH += $(XPRINC)
+	LIBS += $(XPRLIBS)
+endif
+ifneq (,$(findstring SC,$(USEDSOLVERS)))
+	DEFINES += -DSCIPV
+	INCPATH += $(SCIPINC)
+	LIBS += $(SCIPLIBS)
+endif
 
 ####### Object Files
 OBJECTS          = $(OBJECTDIR)/src/crpXmain.o $(OBJECTDIR)/src/crpXaudit.o $(OBJECTDIR)/src/crpSmain.o $(OBJECTDIR)/src/crpSaudit.o $(OBJECTDIR)/src/crpCmain.o $(OBJECTDIR)/src/crpCaudit.o $(OBJECTDIR)/src/WrapCRP.o $(OBJECTDIR)/src/Versioninfo.o
 
-LDLIBSOPTIONS    = $(LIBS)#-static-libgcc -static-libstdc++
+
+CXXFLAGS         = -g -O2 -Wall $(DEFINES) $(BITS)
+#CXXFLAGS         = -ggdb -g -Og -Wall $(DEFINES) $(BITS)
+LDLIBSOPTIONS    = $(LIBS) -static-libgcc -static-libstdc++
 
 ####### Compile
 all:

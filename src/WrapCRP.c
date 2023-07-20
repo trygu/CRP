@@ -479,7 +479,7 @@ int do_round(char *Solver, char *InFileName, double Base, double *UpperBound, do
 	return(1);
     }
 
-    *UpperBound = 100000000;
+    *UpperBound = 10000000000000;
     *LowerBound = 0;
 
     t1 = clock();
