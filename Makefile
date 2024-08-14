@@ -66,13 +66,13 @@ ifeq ($(32BIT),false)
 else
     #DIRCPLEX     = ../Solvers/Cplex/Cplex75
     #CPXLIBS      = -L$(DIRCPLEX)/lib -lcplex75
-    DIRCPLEX     = ../Solvers/Cplex/Cplex122
-    CPXLIBS      = -L$(DIRCPLEX)/lib -lcplex122
+    DIRCPLEX     = ../Solvers/Cplex/Cplex125/Windows/32bits
+    CPXLIBS      = -L$(DIRCPLEX) -lcplex125
 endif
 CPXINC           = -I$(DIRCPLEX)/include
 
 #DIRXPRESS        = ../Solvers/XPress/XPress_28/$(ARCH)
-DIRXPRESS        = ../Solvers/XPress/19
+DIRXPRESS        = ../Solvers/XPress/XPress_19
 XPRINC           = -I$(DIRXPRESS)
 XPRLIBS          = -L$(DIRXPRESS) -lxprl -lxprs
 
@@ -87,7 +87,8 @@ SCIPINC          = -I$(DIRLPS)/src -I$(DIRSOPLEX)/src
 SCIPLIBS         = -L$(DIRLPS)/lib -L$(DIRSOPLEX)/lib -L$(DIRLPS)/lib -l$(OBJSCIPLIB) -l$(SCIPLIB) -l$(NLPILIB) -l$(LPISPXLIB) -l$(SOPLEXLIB)
 
 ifneq (,$(findstring CP,$(USEDSOLVERS)))
-	DEFINES += -DCPLEXV
+	DEFINES += -DCPLEXV 
+	DEFINES += -DBUILD_CPXSTATIC #Needed to circumvent deprication errors
 	INCPATH += $(CPXINC)
 	LIBS += $(CPXLIBS)
 endif
