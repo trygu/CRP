@@ -114,6 +114,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ runner.os == 'Windows' && 'release/crp-windows.zip' || runner.os == 'macOS' && 'release/crp-macos.tar.gz' || 'release/crp-linux.tar.gz' }}
-          asset_name: ${{ runner.os == 'Windows' && 'crp-windows.zip' || runner.os == 'macOS' && 'crp-macos.tar.gz' || 'crp-linux.tar.gz' }}
-          asset_content_type: ${{ runner.os == 'Windows' && 'application/zip' || 'application/gzip' }}
+          asset_path: |
+            ${{ matrix.os == 'windows-latest' && 'release/crp-windows.zip' || matrix.os == 'macos-latest' && 'release/crp-macos.tar.gz' || 'release/crp-ubuntu.tar.gz' }}
+          asset_name: ${{ matrix.os == 'windows-latest' && 'crp-windows.zip' || matrix.os == 'macos-latest' && 'crp-macos.tar.gz' || 'crp-ubuntu.tar.gz' }}
+          asset_content_type: ${{ matrix.os == 'windows-latest' && 'application/zip' || 'application/gzip' }}
