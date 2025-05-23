@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(CRP C CXX)
 
+set(CRP_VERSION 3.1.0)
+
 # Set output directories
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -58,6 +60,10 @@ endif()
 # For XPRESS or CPLEX, do similarly if you have the libraries and CMake support.
 # target_compile_definitions(CRP PRIVATE XPRESSV)
 # target_compile_definitions(CRP PRIVATE CPLEXV)
+
+# --- pkg-config support ---
+configure_file(${CMAKE_SOURCE_DIR}/crp.pc.in ${CMAKE_BINARY_DIR}/crp.pc @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/crp.pc DESTINATION lib/pkgconfig)
 
 # Set C standard
 set_target_properties(CRP PROPERTIES C_STANDARD 99)

@@ -1,6 +1,6 @@
 # Argus Open Source
 
-**Version:** 3.1.0 (May 2025)
+**Version:** 3.1.0 (set centrally in CMakeLists.txt as CRP_VERSION)
 
 Software to apply Statistical Disclosure Control techniques
 
@@ -69,6 +69,25 @@ This project supports multiple mathematical optimization solvers:
    cmake --install build
    ```
 - For solver support (CPLEX, SCIP, XPRESS), ensure the relevant libraries and headers are available and update the CMake configuration as needed.
+
+## Using with pkg-config
+
+This library provides a pkg-config file (`crp.pc`) for easy integration with other projects.
+
+After installation, you can use pkg-config to get the necessary compiler and linker flags:
+
+```sh
+pkg-config --cflags crp   # Shows the include path
+pkg-config --libs crp     # Shows the linker flags
+```
+
+If you install to a non-standard prefix, set the PKG_CONFIG_PATH environment variable:
+
+```sh
+export PKG_CONFIG_PATH=/your/install/prefix/lib/pkgconfig:$PKG_CONFIG_PATH
+```
+
+This makes it easy to use CRP in your own C/C++ projects and build systems.
 
 ## Legacy Makefiles
 - Old Makefiles (including `Makefile` and NetBeans `NBMakefile`) are deprecated and no longer maintained. They may not reflect the current build process and should not be used. Use CMake for all new builds.
