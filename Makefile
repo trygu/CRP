@@ -1,4 +1,10 @@
 ######################################################################################
+# WARNING: This Makefile is deprecated. Use CMake (CMakeLists.txt) for all builds.   #
+# This file is no longer maintained and may not work with the current codebase.      #
+# See README.md for up-to-date build instructions.                                   #
+######################################################################################
+
+######################################################################################
 # Makefile for building: Crplib.dll
 # use "make 32BIT=true" to compile for 32 bit system
 # use "make SOLVER=foo" to compile only for selected LP-solvers

@@ -7,7 +7,6 @@
 #include "GlobErrors.h"
 #include "xprs.h"
 #include "crpload.h"
-#include <process.h>
 
 #define MAXUB   1.0E+40
 /////////////////////////////////////////////////////////////////////////////
@@ -55,32 +54,39 @@ CXXRounder *mypointer;
 int TAUmessage(double lb,double ub,double rapid,int nodedone,int nodeleft)
 {
     char   buf1[MAXPATH],buf2[MAXPATH],buf3[MAXPATH],buf4[MAXPATH],buf5[MAXPATH],buf6[MAXPATH];
-	double TotalTime = (double)clock()/CLOCKS_PER_SEC - InitialTime;
+    double TotalTime = (double)clock()/CLOCKS_PER_SEC - InitialTime;
 
     mypointer->FireUpdateLowerBound(lb);
     mypointer->FireUpdateUpperBound(ub);
     mypointer->FireUpdateNumberCloseSubProb(nodedone);
     mypointer->FireUpdateNumberOpenSubProb(nodeleft);
-//	mypointer->Fire_UpdateNumberFeasible(NFeas);
-//	mypointer->FireUpdateProgress(Prog);
+//  mypointer->Fire_UpdateNumberFeasible(NFeas);
+//  mypointer->FireUpdateProgress(Prog);
 
-	if (StoppingRule == 1) return 1; //Only the first Rapid
+    if (StoppingRule == 1) return 1; //Only the first Rapid
 
     if ( (StoppingRule == 2) && ( (ub - MAXUB) < -10) ) return 1; // stop after the first feasible solution
-	                                                   // -10 voor precisie problemen
+                                                           // -10 voor precisie problemen
 
-	if( TotalTime > MaxTime ){
+    if( TotalTime > MaxTime ){
         sprintf(buf1,"%.2lf",lb);
         sprintf(buf2,"%.2lf",ub);
         sprintf(buf3,"%d",nodedone);
         sprintf(buf4,"%d",nodeleft);
         sprintf(buf5,"%.2lf",TotalTime/60.0);
         sprintf(buf6,"%.2lf",rapid);
+#if defined(_WIN32) || defined(_WIN64)
         MaxTime += 60.0 * _spawnl(_P_WAIT, namepathexe, namepathexe, buf1, buf2, buf3, buf4, buf5, buf6, NULL );
-	    if( TotalTime > MaxTime )
-			return 1;                // abortion
-	}
-	return 0;                        // continue
+#else
+        // Compose command string for system()
+        char cmd[1024];
+        snprintf(cmd, sizeof(cmd), "%s %s %s %s %s %s %s %s", namepathexe, buf1, buf2, buf3, buf4, buf5, buf6);
+        MaxTime += 60.0 * system(cmd);
+#endif
+        if( TotalTime > MaxTime )
+            return 1;                // abortion
+    }
+    return 0;                        // continue
 }
 // end of JJ TauMessage function
 

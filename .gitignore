@@ -1,0 +1,37 @@
+# Build and CMake files
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+lib/
+*.o
+*.obj
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.exe
+*.out
+*.log
+*.d
+
+# IDE and OS files
+*.swp
+*.swo
+*.DS_Store
+*.vscode/
+nbproject/private/
+
+# Backup and temp files
+*~
+*.bak
+*.tmp
+*.old
+*.orig
+
+# Ignore generated files
+/XXRounder/*.o
+/XXRounder/*.obj
+/XXRounder/*.exe
