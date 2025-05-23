@@ -43,7 +43,7 @@ jobs:
       - name: Package binaries
         run: |
           mkdir -p release
-          if [[ $RUNNER_OS == 'Windows' ]]; then
+          if [[ "${{ runner.os }}" == 'Windows' ]]; then
             zip -r release/crp-${{ matrix.os }}.zip install/*
           else
             tar -czvf release/crp-${{ matrix.os }}.tar.gz install/*
@@ -75,6 +75,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release/*
-          asset_name: crp-${{ matrix.os }}.tar.gz
-          asset_content_type: application/gzip
+          asset_path: release/crp-${{ matrix.os }}.*
+          asset_name: crp-${{ matrix.os }}.${{ runner.os == 'Windows' && 'zip' || 'tar.gz' }}
+          asset_content_type: ${{ runner.os == 'Windows' && 'application/zip' || 'application/gzip' }}
