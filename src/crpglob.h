@@ -35,19 +35,17 @@ int            CRPnsum;       /* number of sums after reduction       */
 CONSTRAINT     *CRPsum;       /* potential constraints                */
 
 
-double ZERO;           /* zero-epsilon                             */
-double INF;            /* infinity                                 */
-double MAX_TIME;       /* maximum total CPU time                   */
-double MIN_VIOLA;      /* minimum violation for valid cuts         */
-double MAX_SLACK;      /* maximum slack for cuts in the LP         */
-
-
 #ifndef __WRAPCRP_H
-// for statistic outputs, not to be used in WrapCRP.c
+#else
+extern double ZERO;           /* zero-epsilon                             */
+extern double INF;            /* infinity                                 */
+extern double MAX_TIME;       /* maximum total CPU time                   */
+extern double MIN_VIOLA;      /* minimum violation for valid cuts         */
+extern double MAX_SLACK;      /* maximum slack for cuts in the LP         */
+#endif
 
 static float          CRPtime1=-1.0;
 static float          CRPtime2=-1.0;
 static float          CRPtime3=-1.0;
 static int            CRPnodes;
 static int            CRPaudit = -1;
-#endif

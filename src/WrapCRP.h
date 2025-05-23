@@ -27,13 +27,13 @@
 //__declspec(dllimport) void (*CRPmessage)(double,double,int,int);
 //__declspec(dllimport) int  (*CRPextratime)(void);
 //#else
-double ZERO;           /* zero-epsilon                             */
-double INF;            /* infinity                                 */
-double MAX_TIME;       /* maximum total CPU time                   */
-double MIN_VIOLA;      /* minimum violation for valid cuts         */
-double MAX_SLACK;      /* maximum slack for cuts in the LP         */
-void (*CRPmessage)(double,double,int,int);
-int  (*CRPextratime)(void);
+extern double ZERO;           /* zero-epsilon                             */
+extern double INF;            /* infinity                                 */
+extern double MAX_TIME;       /* maximum total CPU time                   */
+extern double MIN_VIOLA;      /* minimum violation for valid cuts         */
+extern double MAX_SLACK;      /* maximum slack for cuts in the LP         */
+extern void (*CRPmessage)(double,double,int,int);
+extern int  (*CRPextratime)(void);
 //#endif
 
 enum ErrorTypes {

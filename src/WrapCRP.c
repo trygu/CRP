@@ -22,6 +22,16 @@
 char *fsolution;
 char *fstatistic;
 
+// Definitions for global variables
+
+double ZERO = 0.0;           /* zero-epsilon                             */
+double INF = 1.0E20;         /* infinity                                 */
+double MAX_TIME = 60.0;      /* maximum total CPU time                   */
+double MIN_VIOLA = 1.0E-6;   /* minimum violation for valid cuts         */
+double MAX_SLACK = 1.0E-6;   /* maximum slack for cuts in the LP         */
+void (*CRPmessage)(double,double,int,int) = NULL;
+int  (*CRPextratime)(void) = NULL;
+
 void CRPsetfunctions( void (*f)(double,double,int,int) , int (*g)(void) )
 {
 	CRPmessage   = f;
