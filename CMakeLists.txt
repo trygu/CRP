@@ -36,6 +36,13 @@ else()
     set_target_properties(CRP PROPERTIES SUFFIX ".so")
 endif()
 
+# Ensure the DLL is placed in the correct directory for all configurations on Windows
+if(WIN32)
+    foreach(CONFIG_TYPE Debug Release RelWithDebInfo MinSizeRel)
+        set_target_properties(CRP PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${CONFIG_TYPE} ${CMAKE_BINARY_DIR}/bin/${CONFIG_TYPE})
+    endforeach()
+endif()
+
 # Option to build XXRounder (requires CPLEX)
 option(BUILD_XXROUNDER "Build the XXRounder static library (requires CPLEX)" OFF)
 
