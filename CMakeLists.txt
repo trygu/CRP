@@ -39,7 +39,8 @@ endif()
 # Ensure the DLL is placed in the correct directory for all configurations on Windows
 if(WIN32)
     foreach(CONFIG_TYPE Debug Release RelWithDebInfo MinSizeRel)
-        set_target_properties(CRP PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${CONFIG_TYPE} ${CMAKE_BINARY_DIR}/bin/${CONFIG_TYPE})
+        set_target_properties(CRP PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY_${CONFIG_TYPE} ${CMAKE_BINARY_DIR}/bin/${CONFIG_TYPE})
     endforeach()
 endif()
 
