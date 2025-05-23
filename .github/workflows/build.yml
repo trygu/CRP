@@ -3,7 +3,7 @@ name: Build CRP Library
 on:
   push:
     branches: [ main, master ]
-    tags: # Trigger workflow on version tags (e.g., v1.0.0)
+    tags:
       - 'v*'
   pull_request:
     branches: [ main, master ]
@@ -17,6 +17,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up CMake
         uses: jwlawson/actions-setup-cmake@v2
 
@@ -24,6 +25,7 @@ jobs:
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y build-essential pkg-config
+
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -32,26 +34,18 @@ jobs:
           else
             echo "pkgconf is already installed."
           fi
+
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
-        run: choco install pkgconfiglite
+        run: choco install pkgconfiglite zip
 
-      # Install zip on Windows
-      - name: Install zip (Windows)
-        if: runner.os == 'Windows'
-        run: choco install zip
-
-      # Configure, Build, and Install
+      # Configure, Build, Install
       - name: Configure
-        shell: bash
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            cmake -S . -B build -DUSE_SCIP=OFF 
-          else
-            cmake -S . -B build -DUSE_SCIP=OFF
-          fi
+        run: cmake -S . -B build -DUSE_SCIP=OFF
+
       - name: Build
         run: cmake --build build --config Release
+
       - name: Install
         run: cmake --install build --config Release --prefix ${{ github.workspace }}/install
 
@@ -60,42 +54,35 @@ jobs:
         shell: bash
         run: |
           mkdir -p release
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            zip -r release/crp-windows.zip install/*
-          elif [[ "${{ runner.os }}" == "macOS" ]]; then
-            tar -czvf release/crp-macos.tar.gz install/*
-          else
-            tar -czvf release/crp-linux.tar.gz install/*
-          fi
+          case "${{ runner.os }}" in
+            "Windows") zip -r release/crp-windows.zip install/* ;;
+            "macOS")   tar -czvf release/crp-macos.tar.gz install/* ;;
+            *)         tar -czvf release/crp-linux.tar.gz install/* ;;
+          esac
 
-      # Upload binaries as artifacts
+      # Upload artifacts
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: crp-${{ matrix.os }}
-          path: |
-            release/crp-windows.zip
-            release/crp-macos.tar.gz
-            release/crp-linux.tar.gz
+          path: release/
 
       # Check if release already exists
       - name: Check if Release Exists
         id: check_release
-        if: startsWith(github.ref, 'refs/tags/')
-        shell: bash
+        if: github.ref_type == 'tag'
         run: |
-          set -e
           RELEASE_URL="https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}"
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$RELEASE_URL")
           if [ "$STATUS" = "200" ]; then
-            echo "exists=true" >> $GITHUB_ENV
+            echo "exists=true" >> $GITHUB_OUTPUT
           else
-            echo "exists=false" >> $GITHUB_ENV
+            echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
       # Create GitHub Release
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/') && steps.check_release.outputs.exists == 'false'
+        if: github.ref_type == 'tag' && steps.check_release.outputs.exists == 'false'
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -106,15 +93,14 @@ jobs:
           draft: false
           prerelease: false
 
-      # Upload release assets
+      # Upload Release Assets
       - name: Upload Release Assets
-        if: startsWith(github.ref, 'refs/tags/') && steps.check_release.outputs.exists == 'false'
+        if: github.ref_type == 'tag' && steps.check_release.outputs.exists == 'false'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: |
-            ${{ matrix.os == 'windows-latest' && 'release/crp-windows.zip' || matrix.os == 'macos-latest' && 'release/crp-macos.tar.gz' || 'release/crp-ubuntu.tar.gz' }}
-          asset_name: ${{ matrix.os == 'windows-latest' && 'crp-windows.zip' || matrix.os == 'macos-latest' && 'crp-macos.tar.gz' || 'crp-ubuntu.tar.gz' }}
-          asset_content_type: ${{ matrix.os == 'windows-latest' && 'application/zip' || 'application/gzip' }}
+          asset_path: ${{ runner.os == 'Windows' && 'release/crp-windows.zip' || runner.os == 'macOS' && 'release/crp-macos.tar.gz' || 'release/crp-linux.tar.gz' }}
+          asset_name: ${{ runner.os == 'Windows' && 'crp-windows.zip' || runner.os == 'macOS' && 'crp-macos.tar.gz' || 'crp-linux.tar.gz' }}
+          asset_content_type: ${{ runner.os == 'Windows' && 'application/zip' || 'application/gzip' }}
