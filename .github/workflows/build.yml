@@ -3,12 +3,14 @@ name: Build CRP Library
 on:
   push:
     branches: [ main, master ]
+    tags: # Trigger workflow on version tags (e.g., v1.0.0)
+      - 'v*'
   pull_request:
     branches: [ main, master ]
 
 jobs:
-  build:
-    name: Build on ${{ matrix.os }}
+  build-and-release:
+    name: Build and Release on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -17,22 +19,62 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up CMake
         uses: jwlawson/actions-setup-cmake@v2
+
+      # Install dependencies
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y build-essential pkg-config
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: brew install pkg-config
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: choco install pkgconfiglite
+
+      # Configure, Build, and Install
       - name: Configure
-        run: cmake -S . -B build
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build
         run: cmake --build build --config Release
       - name: Install
         run: cmake --install build --config Release --prefix ${{ github.workspace }}/install
-      - name: Upload library and pkg-config file
+
+      # Package binaries
+      - name: Package binaries
+        run: |
+          mkdir -p release
+          if [[ $RUNNER_OS == 'Windows' ]]; then
+            zip -r release/crp-${{ matrix.os }}.zip install/*
+          else
+            tar -czvf release/crp-${{ matrix.os }}.tar.gz install/*
+          fi
+
+      # Upload binaries as artifacts
+      - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: crp-${{ runner.os }}
-          path: |
-            install/lib/*
-            install/lib/pkgconfig/crp.pc
+          name: crp-${{ matrix.os }}
+          path: release/*
+
+      # Create GitHub Release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      # Upload release assets
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: release/*
+          asset_name: crp-${{ matrix.os }}.tar.gz
+          asset_content_type: application/gzip
