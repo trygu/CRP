@@ -38,7 +38,7 @@ jobs:
 
       # Configure, Build, and Install
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -DUSE_SCIP=OFF
       - name: Build
         run: cmake --build build --config Release
       - name: Install
@@ -83,6 +83,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release/crp-${{ matrix.os }}.*
+          asset_path: ${{ (runner.os == 'Windows') && 'release/crp-${{ matrix.os }}.zip' || 'release/crp-${{ matrix.os }}.tar.gz' }}
           asset_name: crp-${{ matrix.os }}.${{ runner.os == 'Windows' && 'zip' || 'tar.gz' }}
           asset_content_type: ${{ runner.os == 'Windows' && 'application/zip' || 'application/gzip' }}
