@@ -31,6 +31,11 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install pkgconfiglite
 
+      # Install zip on Windows
+      - name: Install zip (Windows)
+        if: runner.os == 'Windows'
+        run: choco install zip
+
       # Configure, Build, and Install
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
