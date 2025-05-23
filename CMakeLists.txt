@@ -29,6 +29,7 @@ add_library(CRP SHARED ${CRP_SOURCES})
 # Platform-specific settings
 if(WIN32)
     set_target_properties(CRP PROPERTIES SUFFIX ".dll")
+    set_target_properties(CRP PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 elseif(APPLE)
     set_target_properties(CRP PROPERTIES SUFFIX ".dylib")
 else()
