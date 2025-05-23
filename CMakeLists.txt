@@ -60,12 +60,18 @@ endif()
 # Link XXRounder if needed (example)
 # target_link_libraries(CRP XXRounder)
 
+# --- SCIP solver support (default, open source) ---
+include(FetchContent)
+FetchContent_Declare(
+  scip
+  GIT_REPOSITORY https://github.com/scipopt/scip.git
+  GIT_TAG        v9.2.2
+)
+FetchContent_MakeAvailable(scip)
+target_link_libraries(CRP PRIVATE scip)
+target_compile_definitions(CRP PRIVATE SCIPV)
+
 # Solver libraries (user must set these appropriately)
-# To enable open source SCIP solver support, uncomment and adjust the following lines:
-# find_package(SCIP REQUIRED)
-# target_link_libraries(CRP PRIVATE SCIP::scip)
-# target_compile_definitions(CRP PRIVATE SCIPV)
-#
 # For XPRESS or CPLEX, do similarly if you have the libraries and CMake support.
 # target_compile_definitions(CRP PRIVATE XPRESSV)
 # target_compile_definitions(CRP PRIVATE CPLEXV)

@@ -38,7 +38,12 @@ jobs:
 
       # Configure, Build, and Install
       - name: Configure
-        run: cmake -S . -B build -DUSE_SCIP=OFF
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            cmake -S . -B build -DUSE_SCIP=ON
+          else
+            cmake -S . -B build -DUSE_SCIP=OFF
+          fi
       - name: Build
         run: cmake --build build --config Release
       - name: Install
@@ -50,21 +55,40 @@ jobs:
         run: |
           mkdir -p release
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            zip -r release/crp-${{ matrix.os }}.zip install/*
+            zip -r release/crp-windows.zip install/*
+          elif [[ "${{ runner.os }}" == "macOS" ]]; then
+            tar -czvf release/crp-macos.tar.gz install/*
           else
-            tar -czvf release/crp-${{ matrix.os }}.tar.gz install/*
+            tar -czvf release/crp-linux.tar.gz install/*
           fi
 
       # Upload binaries as artifacts
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: crp-${{ matrix.os }}
-          path: release/*
+          name: crp-${{ runner.os }}
+          path: |
+            release/crp-windows.zip
+            release/crp-macos.tar.gz
+            release/crp-linux.tar.gz
+
+      # Check if release already exists
+      - name: Check if Release Exists
+        id: check_release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -e
+          RELEASE_URL="https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$RELEASE_URL")
+          if [ "$STATUS" = "200" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
       # Create GitHub Release
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') && steps.check_release.outputs.exists == 'false'
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -77,12 +101,12 @@ jobs:
 
       # Upload release assets
       - name: Upload Release Assets
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') && steps.check_release.outputs.exists == 'false'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ (runner.os == 'Windows') && 'release/crp-${{ matrix.os }}.zip' || 'release/crp-${{ matrix.os }}.tar.gz' }}
-          asset_name: crp-${{ matrix.os }}.${{ runner.os == 'Windows' && 'zip' || 'tar.gz' }}
+          asset_path: ${{ runner.os == 'Windows' && 'release/crp-windows.zip' || runner.os == 'macOS' && 'release/crp-macos.tar.gz' || 'release/crp-linux.tar.gz' }}
+          asset_name: ${{ runner.os == 'Windows' && 'crp-windows.zip' || runner.os == 'macOS' && 'crp-macos.tar.gz' || 'crp-linux.tar.gz' }}
           asset_content_type: ${{ runner.os == 'Windows' && 'application/zip' || 'application/gzip' }}
