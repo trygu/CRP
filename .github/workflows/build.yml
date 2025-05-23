@@ -38,6 +38,7 @@ jobs:
 
       # Configure, Build, and Install
       - name: Configure
+        shell: bash
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             cmake -S . -B build -DUSE_SCIP=ON
