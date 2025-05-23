@@ -71,6 +71,9 @@ if(USE_SCIP)
   FetchContent_MakeAvailable(scip)
   target_link_libraries(CRP PRIVATE scip)
   target_compile_definitions(CRP PRIVATE SCIPV)
+
+  # Enable SCIP's AUTOBUILD option to resolve missing dependencies like PAPILO
+  set(AUTOBUILD ON CACHE BOOL "Enable SCIP's automatic build of dependencies")
 endif()
 
 # Solver libraries (user must set these appropriately)
