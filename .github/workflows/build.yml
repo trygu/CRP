@@ -41,9 +41,10 @@ jobs:
 
       # Package binaries
       - name: Package binaries
+        shell: bash
         run: |
           mkdir -p release
-          if [[ "${{ runner.os }}" == 'Windows' ]]; then
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
             zip -r release/crp-${{ matrix.os }}.zip install/*
           else
             tar -czvf release/crp-${{ matrix.os }}.tar.gz install/*
