@@ -9,8 +9,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build-and-release:
-    name: Build and Release on ${{ matrix.os }}
+  build:
+    name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -39,7 +39,7 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install pkgconfiglite zip
 
-      # Configure, Build, Install
+      # Configure and build
       - name: Configure
         run: cmake -S . -B build -DUSE_SCIP=OFF
 
@@ -49,7 +49,7 @@ jobs:
       - name: Install
         run: cmake --install build --config Release --prefix ${{ github.workspace }}/install
 
-      # Package binaries
+      # Package
       - name: Package binaries
         shell: bash
         run: |
@@ -60,29 +60,25 @@ jobs:
             *)         tar -czvf release/crp-linux.tar.gz install/* ;;
           esac
 
-      # Upload artifacts
+      # Upload artifact per OS
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: crp-${{ matrix.os }}
           path: release/
 
-      # Check if release already exists
-      - name: Check if Release Exists
-        id: check_release
-        if: github.ref_type == 'tag'
-        run: |
-          RELEASE_URL="https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}"
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$RELEASE_URL")
-          if [ "$STATUS" = "200" ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
+  release:
+    name: Create GitHub Release
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
 
-      # Create GitHub Release
-      - name: Create Release
-        if: github.ref_type == 'tag' && steps.check_release.outputs.exists == 'false'
+      - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -93,14 +89,21 @@ jobs:
           draft: false
           prerelease: false
 
-      # Upload Release Assets
-      - name: Upload Release Assets
-        if: github.ref_type == 'tag' && steps.check_release.outputs.exists == 'false'
-        uses: actions/upload-release-asset@v1
+      - name: Upload all assets to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ runner.os == 'Windows' && 'release/crp-windows.zip' || runner.os == 'macOS' && 'release/crp-macos.tar.gz' || 'release/crp-linux.tar.gz' }}
-          asset_name: ${{ runner.os == 'Windows' && 'crp-windows.zip' || runner.os == 'macOS' && 'crp-macos.tar.gz' || 'crp-linux.tar.gz' }}
-          asset_content_type: ${{ runner.os == 'Windows' && 'application/zip' || 'application/gzip' }}
+          UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
+        run: |
+          set -e
+          cd all-artifacts
+
+          find . -type f \( -name "*.tar.gz" -o -name "*.zip" \) | while read -r asset; do
+            name=$(basename "$asset")
+            echo "Uploading $name..."
+            curl \
+              -X POST \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Content-Type: $(file -b --mime-type "$asset")" \
+              --data-binary @"$asset" \
+              "${UPLOAD_URL}?name=${name}"
+          done
