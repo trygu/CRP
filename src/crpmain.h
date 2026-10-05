@@ -49,9 +49,13 @@ EXPORTFUNC int    X_CRPopenSOLVER(void);
 EXPORTFUNC int    X_CRPcloseSOLVER(void);
 #endif
 
-EXPORTFUNC void (*CRPmessage)(double,double,int,int);
+/* `extern` so that when crpmain.h is included from a C++ translation unit
+   (crpSmain.c/crpSaudit.c compile as C++) these are declarations, not
+   tentative definitions that would clash with the single definition in
+   WrapCRP.c. */
+extern EXPORTFUNC void (*CRPmessage)(double,double,int,int);
 
-EXPORTFUNC int  (*CRPextratime)(void);
+extern EXPORTFUNC int  (*CRPextratime)(void);
 
 //EXPORTFUNC double ZERO;           /* zero-epsilon                             */
 //EXPORTFUNC double INF;            /* infinity                                 */

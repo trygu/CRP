@@ -3,28 +3,34 @@ project(CRP C CXX)
 
 set(CRP_VERSION 3.1.0)
 
-# Set output directories
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 # Source files
+# The "S" files are now HiGHS-backed (the SCIP name is kept as the
+# compile definition to minimise churn; they contain no SCIP code).
 set(CRP_SOURCES
-    src/crpCaudit.c
-    src/crpCmain.c
     src/crpSaudit.c
     src/crpSmain.c
-    src/crpXaudit.c
-    src/crpXmain.c
     src/exact.c
     src/WrapCRP.c
 )
 
-# Headers
-include_directories(src)
+# The two files that include the HiGHS C API must be compiled as C++.
+# In C, `const` file-scope constants in a header have EXTERNAL linkage, so
+# including highs_c_api.h in two translation units produces duplicate-symbol
+# link errors. In C++ those `const` constants have internal linkage (one per
+# TU), so the link succeeds. This mirrors how native/csp is built.
+set_source_files_properties(src/crpSmain.c src/crpSaudit.c PROPERTIES LANGUAGE CXX)
 
 # Shared library
 add_library(CRP SHARED ${CRP_SOURCES})
+add_library(tauargus::crp ALIAS CRP)
+
+# Headers (PUBLIC so downstream targets, e.g. native/rounder, can #include
+# "WrapCRP.h" from CRP's src/ directory).
+target_include_directories(CRP
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:include>
+)
 
 # Platform-specific settings
 if(WIN32)
@@ -44,6 +50,11 @@ if(WIN32)
     endforeach()
 endif()
 
+# --- HiGHS solver (open source; replaces the old SCIP backend) ---
+find_package(Highs REQUIRED)
+target_compile_definitions(CRP PRIVATE SCIPV)
+target_link_libraries(CRP PRIVATE highs::highs)
+
 # Option to build XXRounder (requires CPLEX)
 option(BUILD_XXROUNDER "Build the XXRounder static library (requires CPLEX)" OFF)
 
@@ -59,31 +70,6 @@ endif()
 
 # Link XXRounder if needed (example)
 # target_link_libraries(CRP XXRounder)
-
-# --- SCIP solver support (default, open source) ---
-if(USE_SCIP)
-  include(FetchContent)
-  FetchContent_Declare(
-    scip
-    GIT_REPOSITORY https://github.com/scipopt/scip.git
-    GIT_TAG        v922
-  )
-  FetchContent_MakeAvailable(scip)
-  target_link_libraries(CRP PRIVATE scip)
-  target_compile_definitions(CRP PRIVATE SCIPV)
-
-  # Enable SCIP's AUTOBUILD option to resolve missing dependencies like PAPILO
-  set(AUTOBUILD ON CACHE BOOL "Enable SCIP's automatic build of dependencies")
-endif()
-
-# Solver libraries (user must set these appropriately)
-# For XPRESS or CPLEX, do similarly if you have the libraries and CMake support.
-# target_compile_definitions(CRP PRIVATE XPRESSV)
-# target_compile_definitions(CRP PRIVATE CPLEXV)
-
-# --- pkg-config support ---
-configure_file(${CMAKE_SOURCE_DIR}/crp.pc.in ${CMAKE_BINARY_DIR}/crp.pc @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/crp.pc DESTINATION lib/pkgconfig)
 
 # Set C standard
 set_target_properties(CRP PROPERTIES C_STANDARD 99)
