@@ -1,95 +1,53 @@
-# Argus Open Source
+# tauargus — crp
 
-**Version:** 3.1.0 (set centrally in CMakeLists.txt as CRP_VERSION)
+The **crp** module implements the **Controlled Rounding Problem (CRP)** —
+the mixed-integer programming (MIP) backend for iterative rounding with
+auditing. It rounds the response-table cells to integer values while keeping
+totals and margin constraints satisfied, and (optionally) audits the result.
 
-Software to apply Statistical Disclosure Control techniques
+The MIP is solved by **HiGHS** through the HiGHS C API. The two source files
+that include the HiGHS header (`crpSmain.c`, `crpSaudit.c`) are compiled as
+C++ so the `const` constants in the header get internal linkage and don't
+produce duplicate-symbol link errors.
 
-Copyright jjsalaza@ull.es
+The historical CPLEX and XPRESS solver variants (`crpC*`, `crpX*`), the
+`XXRounder` CPLEX-only helper, and the pkg-config / SCIP-FetchContent
+machinery have all been removed; **HiGHS is the only solver**.
 
-This program is free software; you can redistribute it and/or 
-modify it under the terms of the European Union Public Licence 
-(EUPL) version 1.1, as published by the European Commission.
+## What it provides
 
-You can find the text of the EUPL v1.1 on
-https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
+The public API (`src/WrapCRP.h`) exposes:
 
-This software is distributed on an "AS IS" basis without 
-warranties or conditions of any kind, either express or implied.
+- `do_round(...)` — the main entry point the `rounder` module calls.
+- `CRPsetfunctions`, `CRPSetDoubleConstant`, `CRPGetDoubleConstant` —
+  callback / constant plumbing.
 
----
+It is consumed by the `rounder` module (`../rounder`), a thin C++ dispatch
+layer that drives `CRP` through pybind11.
 
-# Cross-Platform Build and Usage (2025 Update)
+## Build
 
-## Major Features
-- **Modern CMake build system**: Supports Windows, macOS, and Linux.
-- **Optional solver support**: CPLEX, SCIP (recommended, open source), and XPRESS.
-- **CI/CD ready**: Suitable for automated builds and releases.
+Part of the superbuild in the top-level repo:
 
-## Building the Core Library
-
-1. **Install CMake** ([Download](https://cmake.org/download/))
-2. Open a terminal in the project root.
-3. Run:
-   ```sh
-   cmake -S . -B build
-   cmake --build build
-   cmake --install build
-   ```
-   This builds and installs the core CRP shared library (e.g., `libCRP.so`, `libCRP.dylib`, or `libCRP.dll`).
-
-> **Note:** CMake is required on all platforms. On Windows, use the official installer or a package manager like Chocolatey.
-
-## Solver Support
-
-By default, the core library is built without solver support for fast CI and development builds. Solver support can be enabled as needed:
-
-- **CPLEX**: Commercial solver, optional. Enable with `-DBUILD_XXROUNDER=ON` if you have CPLEX installed.
-- **SCIP**: Open source solver, recommended for most users and used for official releases.
-- **XPRESS**: Commercial solver, optional.
-
-### How Automatic SCIP Inclusion Works
-
-- **Automatic Download and Build:**
-  When SCIP support is enabled (`-DUSE_SCIP=ON`), CMake will automatically download the SCIP source code from the official GitHub repository using FetchContent, build it from source, and link it to the CRP library. No manual installation of SCIP is needed.
-- **Where is SCIP built?**
-  The SCIP source is cloned into `build/_deps/scip-src/` and built in `build/_deps/scip-build/` inside your build directory. This is all handled automatically by CMake.
-- **No Prebuilt Binaries:**
-  The build always uses the latest stable SCIP source and does not use prebuilt binaries or system packages.
-
-### Recommended Workflow
-
-- **Normal development/CI builds:**
-  Use `-DUSE_SCIP=OFF` (default in CI) for fast builds and to avoid long dependency downloads.
-- **Release builds:**
-  Use `-DUSE_SCIP=ON` to include full open source solver support. This is enabled automatically in the release workflow.
-
-#### Example: Enabling SCIP for a Release
-
-```sh
-cmake -S . -B build -DUSE_SCIP=ON
-cmake --build build
-cmake --install build
+```bash
+cmake -S native -B native/build \
+      -DHighs_DIR=$(brew --prefix)/lib/cmake/Highs
+cmake --build native/build
 ```
 
-> **Note:** The first build with SCIP enabled will take longer, as it downloads and compiles SCIP from source.
+Standalone (needs HiGHS):
 
-## Using with pkg-config
-
-After installation, you can use pkg-config to get compiler and linker flags:
-
-```sh
-pkg-config --cflags crp   # Shows the include path
-pkg-config --libs crp     # Shows the linker flags
-```
-If you install to a non-standard prefix, set the PKG_CONFIG_PATH environment variable:
-```sh
-export PKG_CONFIG_PATH=/your/install/prefix/lib/pkgconfig:$PKG_CONFIG_PATH
+```bash
+cmake -S native/crp -B native/crp/build \
+      -DHighs_DIR=$(brew --prefix)/lib/cmake/Highs
+cmake --build native/crp/build
 ```
 
-## Legacy Makefiles
-Old Makefiles (including `Makefile` and NetBeans `NBMakefile`) are deprecated. Use CMake for all builds.
+Produces `libCRP.dylib` / `libCRP.so` / `CRP.dll` (shared). The `src/`
+directory is exposed as a PUBLIC include dir so `rounder` can `#include
+"WrapCRP.h"`.
 
----
+## License
 
-# Questions?
-If you have issues or want to contribute, open an issue or pull request.
+© jjsalaza@ull.es. Distributed under the EUPL v1.1 / EUPL-1.2. See the
+top-level repository for the full notice.

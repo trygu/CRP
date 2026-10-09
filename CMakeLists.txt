@@ -55,30 +55,11 @@ find_package(Highs REQUIRED)
 target_compile_definitions(CRP PRIVATE SCIPV)
 target_link_libraries(CRP PRIVATE highs::highs)
 
-# Option to build XXRounder (requires CPLEX)
-option(BUILD_XXROUNDER "Build the XXRounder static library (requires CPLEX)" OFF)
-
-# XXRounder (C++ static library)
-if(BUILD_XXROUNDER)
-    file(GLOB XXROUNDER_SOURCES XXRounder/*.cpp)
-    add_library(XXRounder STATIC ${XXROUNDER_SOURCES})
-    target_include_directories(XXRounder PUBLIC XXRounder)
-    set(INSTALL_XXROUNDER XXRounder)
-else()
-    set(INSTALL_XXROUNDER)
-endif()
-
-# Link XXRounder if needed (example)
-# target_link_libraries(CRP XXRounder)
-
 # Set C standard
 set_target_properties(CRP PROPERTIES C_STANDARD 99)
-if(BUILD_XXROUNDER)
-    set_target_properties(XXRounder PROPERTIES CXX_STANDARD 11)
-endif()
 
 # Installation
-install(TARGETS CRP ${INSTALL_XXROUNDER}
+install(TARGETS CRP
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)
