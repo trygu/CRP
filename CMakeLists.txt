@@ -58,6 +58,18 @@ target_link_libraries(CRP PRIVATE highs::highs)
 # Set C standard
 set_target_properties(CRP PROPERTIES C_STANDARD 99)
 
+# crpglob.h defines globals in a header shared by C and C++ sources; GCC >= 10
+# defaults to -fno-common and would report multiple definitions at link time.
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(CRP PRIVATE $<$<COMPILE_LANGUAGE:C>:-fcommon>)
+endif()
+
+# The DYNAMIC/EXPORTFUNC macros are not defined in this build, so export every
+# symbol from the Windows DLL (rounder links against CRP.lib).
+if(WIN32)
+    set_target_properties(CRP PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
 # Installation
 install(TARGETS CRP
         ARCHIVE DESTINATION lib
