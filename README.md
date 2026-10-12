@@ -49,5 +49,5 @@ directory is exposed as a PUBLIC include dir so `rounder` can `#include
 
 ## License
 
-© jjsalaza@ull.es. Distributed under the EUPL v1.1 / EUPL-1.2. See the
+© <jjsalaza@ull.es>. Distributed under the EUPL v1.1 / EUPL-1.2. See the
 top-level repository for the full notice.
