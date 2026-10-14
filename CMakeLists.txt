@@ -73,9 +73,14 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 # The DYNAMIC/EXPORTFUNC macros are not defined in this build, so export every
-# symbol from the Windows DLL (rounder links against CRP.lib).
+# symbol from the Windows DLL (rounder links against CRP's import library).
+# The property covers MSVC only: CMake silently ignores it on MinGW, where
+# the DLL would export nothing. Pass the equivalent GNU ld flag explicitly.
 if(WIN32)
     set_target_properties(CRP PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        target_link_options(CRP PRIVATE "LINKER:--export-all-symbols")
+    endif()
 endif()
 
 # Installation
