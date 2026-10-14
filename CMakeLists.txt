@@ -51,7 +51,15 @@ if(WIN32)
 endif()
 
 # --- HiGHS solver (open source; replaces the old SCIP backend) ---
-find_package(Highs REQUIRED)
+# HiGHS version pin. The superbuild exports TAUARGUS_HIGHS_VERSION (read from
+# engine/HiGHS-VERSION, the single source of truth). A standalone build from
+# the parent checkout reads the same file.
+if(NOT DEFINED TAUARGUS_HIGHS_VERSION AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../HiGHS-VERSION")
+    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/../../HiGHS-VERSION" _TA_HIGHS_TAG)
+    string(STRIP "${_TA_HIGHS_TAG}" _TA_HIGHS_TAG)
+    string(REGEX REPLACE "^v" "" TAUARGUS_HIGHS_VERSION "${_TA_HIGHS_TAG}")
+endif()
+find_package(Highs ${TAUARGUS_HIGHS_VERSION} REQUIRED)
 target_compile_definitions(CRP PRIVATE SCIPV)
 target_link_libraries(CRP PRIVATE highs::highs)
 
