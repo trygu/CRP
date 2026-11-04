@@ -71,6 +71,9 @@ int S_loadsubproblem(double *lb,double *ub)
 	Highs_clear(CRPsubproblemS);
 	/* Highs_clear() resets options to defaults; re-apply quiet logging. */
 	Highs_setBoolOptionValue(CRPsubproblemS, "output_flag", 0);
+#ifdef TAUARGUS_MAX_THREADS
+    Highs_setIntOptionValue(CRPsubproblemS, "threads", TAUARGUS_MAX_THREADS);
+#endif
 	Highs_setBoolOptionValue(CRPsubproblemS, "log_to_console", 0);
 
 	/* Row senses: 'L' -> x <= rhs, 'E' -> x == rhs, 'G' -> x >= rhs. */

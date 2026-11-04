@@ -51,6 +51,9 @@ static void S_CRP_set_silent(void* H)
 {
     if( H == NULL ) return;
     Highs_setBoolOptionValue(H, "output_flag", 0);
+#ifdef TAUARGUS_MAX_THREADS
+    Highs_setIntOptionValue(H, "threads", TAUARGUS_MAX_THREADS);
+#endif
     Highs_setBoolOptionValue(H, "log_to_console", 0);
 }
 
@@ -75,6 +78,7 @@ int S_CRPopenSOLVER()
         fprintf (stderr, "Could not open HiGHS instance.\n");
         return -1;
     }
+    S_CRP_set_silent(CRPenvS);
     /* NOTE: Highs_clear() resets options to defaults, so these are (re)applied
        after each Highs_clear in S_MIPmodel via S_CRP_set_silent(). */
     printf("     using HiGHS\n\n");
