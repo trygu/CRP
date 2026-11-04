@@ -11,6 +11,7 @@
 /****************************************************/
 
 #include "crpdefns.h"
+#include "crpnames.h"
 
 
 /* Global variables for CRP */

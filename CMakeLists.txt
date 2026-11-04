@@ -21,8 +21,12 @@ set(CRP_SOURCES
 set_source_files_properties(src/crpSmain.c src/crpSaudit.c PROPERTIES LANGUAGE CXX)
 
 # Shared library
-add_library(CRP SHARED ${CRP_SOURCES})
+option(BUILD_SHARED_LIBS "Build shared native libraries" ON)
+add_library(CRP ${CRP_SOURCES})
 add_library(tauargus::crp ALIAS CRP)
+if(NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(CRP PUBLIC TAUARGUS_STATIC)
+endif()
 
 # Headers (PUBLIC so downstream targets, e.g. native/rounder, can #include
 # "WrapCRP.h" from CRP's src/ directory).
@@ -32,18 +36,9 @@ target_include_directories(CRP
         $<INSTALL_INTERFACE:include>
 )
 
-# Platform-specific settings
-if(WIN32)
-    set_target_properties(CRP PROPERTIES SUFFIX ".dll")
+# CMake chooses the correct shared or static suffix for each platform.
+if(WIN32 AND BUILD_SHARED_LIBS)
     set_target_properties(CRP PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-elseif(APPLE)
-    set_target_properties(CRP PROPERTIES SUFFIX ".dylib")
-else()
-    set_target_properties(CRP PROPERTIES SUFFIX ".so")
-endif()
-
-# Ensure the DLL is placed in the correct directory for all configurations on Windows
-if(WIN32)
     foreach(CONFIG_TYPE Debug Release RelWithDebInfo MinSizeRel)
         set_target_properties(CRP PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY_${CONFIG_TYPE} ${CMAKE_BINARY_DIR}/bin/${CONFIG_TYPE})
@@ -76,7 +71,7 @@ endif()
 # symbol from the Windows DLL (rounder links against CRP's import library).
 # The property covers MSVC only: CMake silently ignores it on MinGW, where
 # the DLL would export nothing. Pass the equivalent GNU ld flag explicitly.
-if(WIN32)
+if(WIN32 AND BUILD_SHARED_LIBS)
     set_target_properties(CRP PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         target_link_options(CRP PRIVATE "LINKER:--export-all-symbols")
