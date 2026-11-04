@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
+# Honor LANGUAGE CXX for legacy .c files without compiler suffix warnings.
+if(POLICY CMP0119)
+    cmake_policy(SET CMP0119 NEW)
+endif()
 project(CRP C CXX)
 
 set(CRP_VERSION 3.1.0)

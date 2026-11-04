@@ -1094,13 +1094,13 @@ static char *CellName(int i, int j, int k, int s)
         return NULL;
     }
     if( j<0 )
-        sprintf(ptr,"x%d",i);
+        snprintf(ptr,50,"x%d",i);
     else if( k<0 )
-        sprintf(ptr,"x%d_%d",i,j);
+        snprintf(ptr,50,"x%d_%d",i,j);
     else if( s<0 )
-        sprintf(ptr,"x%d_%d_%d",i,j,k);
+        snprintf(ptr,50,"x%d_%d_%d",i,j,k);
     else 
-        sprintf(ptr,"x%d_%d_%d_%d",i,j,k,s);
+        snprintf(ptr,50,"x%d_%d_%d_%d",i,j,k,s);
     
     return ptr;
 }
