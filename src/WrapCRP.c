@@ -425,59 +425,47 @@ int do_round(char *Solver, char *InFileName, double Base, double *UpperBound, do
              if( load_crp0old(file,&ncells,&nsums,&rhs,&ncard,&list,&val,
                  &data,&weight,&status,&lpl,&upl,&spl,&lb,&ub,&names) ){
                 printf(" ERROR: loading CRP instance\n");
-		if( LogFile ) fclose( outputfile );
-		*ErrorCode = NOJJFORMAT;
-                return(1);
+                goto invalid_input;
              }
              break;
         case -1 :
              if( load_crp0(file,&ncells,&nsums,&rhs,&ncard,&list,&val,
                  &data,&weight,&status,&lpl,&upl,&spl,&lb,&ub,&names) ){
                 printf(" ERROR: loading CRP instance\n");
-		if( LogFile ) fclose( outputfile );
-		*ErrorCode = NOJJFORMAT;
-                return(1);
+                goto invalid_input;
              }
              break;
         case 2 :
              if( load_crp2(file,&ncells,&nsums,&rhs,&ncard,&list,&val,
                  &data,&weight,&status,&lpl,&upl,&spl,&lb,&ub,&names) ){
                 printf(" ERROR: loading CRP instance\n");
-		if( LogFile ) fclose( outputfile );
-		*ErrorCode = NOJJFORMAT;
-                return(1);
+                goto invalid_input;
              }
              break;
         case 3 :
              if( load_crp3(file,&ncells,&nsums,&rhs,&ncard,&list,&val,
                  &data,&weight,&status,&lpl,&upl,&spl,&lb,&ub,&names) ){
                 printf(" ERROR: loading CRP instance\n");
-		if( LogFile ) fclose( outputfile );
-		*ErrorCode = NOJJFORMAT;
-                return(1);
+                goto invalid_input;
              }
              break;
         case 4 :
              if( load_crp4(file,&ncells,&nsums,&rhs,&ncard,&list,&val,
                  &data,&weight,&status,&lpl,&upl,&spl,&lb,&ub,&names) ){
                 printf(" ERROR: loading CRP instance\n");
-		if( LogFile ) fclose( outputfile );
-		*ErrorCode = NOJJFORMAT;
-                return(1);
+                goto invalid_input;
              }
              break;
         case -4 :
              if( load_crp4simple(file,&ncells,&nsums,&rhs,&ncard,&list,&val,
                  &data,&weight,&status,&lpl,&upl,&spl,&lb,&ub,&names) ){
                 printf(" ERROR: loading CRP instance\n");
-		if( LogFile ) fclose( outputfile );
-		*ErrorCode = NOJJFORMAT;
-                return(1);
+                goto invalid_input;
              }
              break;
         default:
              printf("ERROR: unknown type of input file\n");
-             exit(1);
+             goto invalid_input;
     }
     fclose(file);
 
@@ -546,6 +534,14 @@ int do_round(char *Solver, char *InFileName, double Base, double *UpperBound, do
     if( LogFile ) fclose( outputfile );
 
     return(0);
+
+invalid_input:
+    if (file) fclose(file);
+    CRPcloseSOLVER(Solver);
+    CRPFreeFileNames();
+    if (outputfile) fclose(outputfile);
+    *ErrorCode = NOJJFORMAT;
+    return(1);
 }
 
 /*******************************************************************/
@@ -567,7 +563,7 @@ static int  load_crp0old(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int 
     fscanf(file,"%d\n",&ncells);
     if( ncells<2 ){
         printf("ERROR: bad input file\n");
-        exit(1);
+        return(1);
     }
     dim = ncells;
     data  = (double *)malloc( dim*sizeof(double) );
@@ -603,6 +599,7 @@ static int  load_crp0old(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int 
         lb[l]  = lbd;
         ub[l]  = ubd;
         names[l] = CellName(k,-1,-1,-1);
+        if (!names[l]) return(1);
 //      names[l] = (char *)malloc( strlen(username)+1 );
 //		strcpy( names[l] , username );
         
@@ -693,7 +690,7 @@ static int  load_crp3(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
     fscanf(file,"%d %d %d\n",&N1,&N2,&N3);
     if( N1<2 || N2<2 || N3<2 ){
         printf("ERROR: bad input file\n");
-        exit(1);
+        return(1);
     }
     N1++;
     N2++;
@@ -727,6 +724,7 @@ static int  load_crp3(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
         lb[l]  = lbd;
         ub[l]  = ubd;
         names[l] = CellName(i,j,k,-1);
+        if (!names[l]) return(1);
         t++;
         if( lbd>d || ubd<d){
             printf("ERROR: reading lb=%lf,ub=%lf and nominal=%lf in cell=%d\n",lbd,ubd,d,l);
@@ -837,7 +835,7 @@ static int  load_crp3(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
     
     if( l != 3*ncells ){
         printf("ERROR: more memory is needed\n");
-        exit(1);
+        return(1);
     }
 
 
@@ -913,7 +911,7 @@ static int  load_crp2(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
     fscanf(file,"%d %d\n",&N1,&N2);
     if( N1<2 || N2<2 ){
         printf("ERROR: bad input file\n");
-        exit(1);
+        return(1);
     }
     N1++;
     N2++;
@@ -945,6 +943,7 @@ static int  load_crp2(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
         lb[l]  = lbd;
         ub[l]  = ubd;
         names[l] = CellName(i,j,-1,-1);
+        if (!names[l]) return(1);
         t++;
         if( lbd>d || ubd<d){
             printf("ERROR: reading lb=%lf,ub=%lf and nominal=%lf in cell=%d\n",lbd,ubd,d,l);
@@ -1012,7 +1011,7 @@ static int  load_crp2(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
     
     if( l != 2*ncells ){
         printf("ERROR: more memory is needed\n");
-        exit(1);
+        return(1);
     }
 
 
@@ -1092,7 +1091,7 @@ static char *CellName(int i, int j, int k, int s)
     ptr = (char *)malloc( 50 * sizeof(char) );
     if( ptr==NULL ){
         printf("ERROR: not enough memory for names\n");
-        exit(1);
+        return NULL;
     }
     if( j<0 )
         sprintf(ptr,"x%d",i);
@@ -1126,7 +1125,7 @@ static int  load_crp4(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
     fscanf(file,"%d %d %d %d\n",&N1,&N2,&N3,&N4);
     if( N1<2 || N2<2 || N3<2 || N4<2 ){
         printf("ERROR: bad input file\n");
-        exit(1);
+        return(1);
     }
     N1++;
     N2++;
@@ -1161,6 +1160,7 @@ static int  load_crp4(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
         lb[l]  = lbd;
         ub[l]  = ubd;
         names[l] = CellName(i,j,k,s);
+        if (!names[l]) return(1);
         t++;
         if( lbd>d || ubd<d){
             printf("ERROR: reading lb=%lf,ub=%lf and nominal=%lf in cell=%d\n",lbd,ubd,d,l);
@@ -1285,7 +1285,7 @@ static int  load_crp4(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
     
     if( l != 4*ncells ){
         printf("ERROR: more memory is needed\n");
-        exit(1);
+        return(1);
     }
 
 
@@ -1362,7 +1362,7 @@ static int  load_crp0(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
         names[l] = ptr = (char *)malloc( (strlen(cadena)+1) * sizeof(char) );
 		if( ptr==NULL ){
 			printf("ERROR: not enough memory for names\n");
-			exit(1);
+			return(1);
 		}
 		strcpy(ptr,cadena);
     }
@@ -1482,7 +1482,7 @@ static int  load_crp4simple(FILE *file ,int *_ncells,int *_nsums,double **_rhs,i
     fscanf(file,"%d %d %d %d\n",&N1,&N2,&N3,&N4);
     if( N1<2 || N2<2 || N3<2 || N4<2 ){
         printf("ERROR: bad input file\n");
-        exit(1);
+        return(1);
     }
     N1++;
     N2++;
@@ -1517,6 +1517,7 @@ static int  load_crp4simple(FILE *file ,int *_ncells,int *_nsums,double **_rhs,i
         lb[l]  = lbd;
         ub[l]  = ubd;
         names[l] = CellName(i,j,k,s);
+        if (!names[l]) return(1);
         t++;
         if( lbd>d || ubd<d){
             printf("ERROR: reading lb=%lf,ub=%lf and nominal=%lf in cell=%d\n",lbd,ubd,d,l);
@@ -1641,7 +1642,7 @@ static int  load_crp4simple(FILE *file ,int *_ncells,int *_nsums,double **_rhs,i
     
     if( l != 4*ncells ){
         printf("ERROR: more memory is needed\n");
-        exit(1);
+        return(1);
     }
 
 
