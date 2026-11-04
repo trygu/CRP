@@ -85,7 +85,10 @@ endif()
 if(WIN32 AND BUILD_SHARED_LIBS)
     set_target_properties(CRP PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        target_link_options(CRP PRIVATE "LINKER:--export-all-symbols")
+        # Keep statically linked dependencies (notably winpthreads) private.
+        # Exporting them makes a consumer's own C++ runtime conflict at link time.
+        target_link_options(CRP PRIVATE "LINKER:--export-all-symbols"
+                                        "LINKER:--exclude-libs,ALL")
     endif()
 endif()
 

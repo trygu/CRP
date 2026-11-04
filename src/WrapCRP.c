@@ -418,7 +418,7 @@ int do_round(char *Solver, char *InFileName, double Base, double *UpperBound, do
         printf("ERROR: it is not possible to open file %s\n",InFileName);
         return(1);
     }
-    fscanf(file,"%d\n",&dim);
+    if (fscanf(file,"%d\n",&dim) != 1) goto invalid_input;
 	
     switch( dim ){
         case 0 :
@@ -560,7 +560,7 @@ static int  load_crp0old(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int 
 //	char username[50];
 
 
-    fscanf(file,"%d\n",&ncells);
+    if (fscanf(file,"%d\n",&ncells) != 1) return 1;
     if( ncells<2 ){
         printf("ERROR: bad input file\n");
         return(1);
@@ -618,7 +618,7 @@ static int  load_crp0old(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int 
     /* passing through general data structure (for linked tables) */
 
 
-    fscanf(file,"%d\n",&nsums);
+    if (fscanf(file,"%d\n",&nsums) != 1) return 1;
     maxsize = ( ncells<1000 && nsums<100 ? ncells*nsums : 30*nsums );
 
     list  = (int *)malloc( maxsize*sizeof(int) );
@@ -632,16 +632,16 @@ static int  load_crp0old(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int 
     }
     j=0;
     for(l=0;l<nsums;l++){
-        fscanf(file,"%lf %d :",&d,&k);
+        if (fscanf(file,"%lf %d :",&d,&k) != 2) return 1;
         rhs[l] = d;
         ncard[l] = k;
         while(k--){
-            fscanf(file," %d (%d)",&d1,&d2);
+            if (fscanf(file," %d (%d)",&d1,&d2) != 2) return 1;
             list[j] = d1;
             val[j] = d2;
             j++;
         }
-        fscanf(file,"\n");
+        if (fscanf(file,"\n") == EOF && ferror(file)) return 1;
     }
 
     if( j>maxsize ){
@@ -687,7 +687,7 @@ static int  load_crp3(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
 	char s_;
 
 
-    fscanf(file,"%d %d %d\n",&N1,&N2,&N3);
+    if (fscanf(file,"%d %d %d\n",&N1,&N2,&N3) != 3) return 1;
     if( N1<2 || N2<2 || N3<2 ){
         printf("ERROR: bad input file\n");
         return(1);
@@ -908,7 +908,7 @@ static int  load_crp2(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
     char **names;
 	char s_;
 
-    fscanf(file,"%d %d\n",&N1,&N2);
+    if (fscanf(file,"%d %d\n",&N1,&N2) != 2) return 1;
     if( N1<2 || N2<2 ){
         printf("ERROR: bad input file\n");
         return(1);
@@ -1122,7 +1122,7 @@ static int  load_crp4(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
 	char s_;
 
 
-    fscanf(file,"%d %d %d %d\n",&N1,&N2,&N3,&N4);
+    if (fscanf(file,"%d %d %d %d\n",&N1,&N2,&N3,&N4) != 4) return 1;
     if( N1<2 || N2<2 || N3<2 || N4<2 ){
         printf("ERROR: bad input file\n");
         return(1);
@@ -1328,8 +1328,10 @@ static int  load_crp0(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
 
 
     position = ftell( file );
-	for(ncells=0 ; strcmp(cadena,"END") ; fscanf(file,"%s",cadena) )
-		ncells++;
+	for (ncells=0; ; ncells++) {
+        if (fscanf(file,"%99s",cadena) != 1) return 1;
+        if (strcmp(cadena,"END") == 0) break;
+    }
 	ncells = ncells/2;
 	fseek( file , position , SEEK_SET );
 
@@ -1349,8 +1351,8 @@ static int  load_crp0(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
     }
 
     for(l=0;l<ncells;l++){
-        fscanf(file,"%s",cadena);
-		fscanf(file,"%lf",&d);
+        if (fscanf(file,"%99s",cadena) != 1) return 1;
+		if (fscanf(file,"%lf",&d) != 1) return 1;
         data[l] = d;
         weight[l] = 1;
         status[l] = 's';
@@ -1366,7 +1368,7 @@ static int  load_crp0(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
 		}
 		strcpy(ptr,cadena);
     }
-    fscanf(file,"%s",cadena);      //END
+    if (fscanf(file,"%99s",cadena) != 1) return 1;      //END
         
 
     
@@ -1376,7 +1378,7 @@ static int  load_crp0(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
     position = ftell( file );
 	nsums=nzero=0;
 	do{
-		fscanf(file,"%s",cadena);
+		if (fscanf(file,"%99s",cadena) != 1) return 1;
 		if( cadena[0]=='=' )
 			nsums++;
 		nzero++;
@@ -1401,7 +1403,7 @@ static int  load_crp0(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
 		position = ftell( file );
 		k=0;
 		do{
-			fscanf(file,"%s",cadena);
+			if (fscanf(file,"%99s",cadena) != 1) return 1;
 			k++;
 		}while( cadena[0]!='&' );
 		k = k/2;
@@ -1410,20 +1412,20 @@ static int  load_crp0(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int **_
 
 		d = 0;
 		do{
-			fscanf(file,"%s",cadena);
+			if (fscanf(file,"%99s",cadena) != 1) return 1;
 			list[ counter ] = i = cellindex( cadena , ncells , names );
 			val[ counter ] = -1;
 			counter++;
-			fscanf(file,"%s",cadena);
+			if (fscanf(file,"%99s",cadena) != 1) return 1;
 			d += data[i];
 		} while( cadena[0]!='=' );
 
 		do{
-			fscanf(file,"%s",cadena);
+			if (fscanf(file,"%99s",cadena) != 1) return 1;
 			list[ counter ] = i = cellindex( cadena , ncells , names );
 			val[ counter ] = +1;
 			counter++;
-			fscanf(file,"%s",cadena);
+			if (fscanf(file,"%99s",cadena) != 1) return 1;
 			d -= data[i];
 		} while( cadena[0]!='&' );
 		if( fabs(d)>0.001 ){
@@ -1479,7 +1481,7 @@ static int  load_crp4simple(FILE *file ,int *_ncells,int *_nsums,double **_rhs,i
     char **names;
 
 
-    fscanf(file,"%d %d %d %d\n",&N1,&N2,&N3,&N4);
+    if (fscanf(file,"%d %d %d %d\n",&N1,&N2,&N3,&N4) != 4) return 1;
     if( N1<2 || N2<2 || N3<2 || N4<2 ){
         printf("ERROR: bad input file\n");
         return(1);
