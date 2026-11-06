@@ -64,7 +64,7 @@ void CRPSetFileNames(const char *Solver, const char *dir)
 #endif
 }
 
-void CRPFreeFileNames()
+void CRPFreeFileNames(void)
 {
     free(fsolution);
     free(fstatistic);
