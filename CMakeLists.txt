@@ -92,6 +92,18 @@ if(WIN32 AND BUILD_SHARED_LIBS)
     endif()
 endif()
 
+# Loader tests (run by the parent repo's dev loop,
+# scripts/dev-test.sh). The test hook (CRPtest_load0old) is compiled
+# into the library only when tests are enabled.
+option(TAUARGUS_CRP_BUILD_TESTS "Build crp loader tests" OFF)
+if(TAUARGUS_CRP_BUILD_TESTS)
+    enable_testing()
+    target_compile_definitions(CRP PRIVATE TAUARGUS_CRP_UNIT_TEST)
+    add_executable(crp_maxsize_tests tests/maxsize_test.cpp)
+    target_link_libraries(crp_maxsize_tests PRIVATE CRP)
+    add_test(NAME maxsize COMMAND crp_maxsize_tests)
+endif()
+
 # Installation
 install(TARGETS CRP
         ARCHIVE DESTINATION lib

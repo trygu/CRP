@@ -637,6 +637,20 @@ static int  load_crp0old(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int 
         ncard[l] = k;
         while(k--){
             if (fscanf(file," %d (%d)",&d1,&d2) != 2) return 1;
+            if (j >= maxsize) {
+                /* Grow beyond the legacy heuristic: wide tables
+                   (margins with more than 30 cells) produce more
+                   sum terms than 30*nsums. */
+                int newsize = maxsize * 2;
+                int *nlist = (int *)realloc(list, (size_t)newsize * sizeof(int));
+                if (!nlist) return 1;
+                list = nlist;
+                signed char *nval = (signed char *)realloc(val,
+                        (size_t)newsize * sizeof(signed char));
+                if (!nval) { free(list); return 1; }
+                val = nval;
+                maxsize = newsize;
+            }
             list[j] = d1;
             val[j] = d2;
             j++;
@@ -644,13 +658,6 @@ static int  load_crp0old(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int 
         if (fscanf(file,"\n") == EOF && ferror(file)) return 1;
     }
 
-    if( j>maxsize ){
-#ifdef STAMP
-        printf("ERROR: maxsize=%d  j=%d\n",maxsize,j);
-#endif
-        return(1);
-    }
-    
     *_ncells = ncells;
     *_nsums  = nsums;
     *_rhs    = rhs;
@@ -669,6 +676,40 @@ static int  load_crp0old(FILE *file ,int *_ncells,int *_nsums,double **_rhs,int 
     return(0);
 }
 
+#ifdef TAUARGUS_CRP_UNIT_TEST
+/* Test hook: run the dim-0 loader (load_crp0old) on a file and report
+   the total number of sum terms. Compiled into the library only when
+   TAUARGUS_CRP_UNIT_TEST is set (see CMakeLists.txt), mirroring the
+   csp test hooks. Returns 0 on success, nonzero on failure. */
+EXPORTFUNC int CRPtest_load0old(const char *path, int *nterms_out)
+{
+    FILE *f = fopen(path, "r");
+    int dim = 0;
+    int ncells, nsums, i, nterms = 0;
+    double *rhs, *data, *lpl, *upl, *spl, *lb, *ub;
+    int *weight, *ncard, *list;
+    char *status;
+    signed char *val;
+    char **names;
+    if (!f) return 1;
+    if (fscanf(f, "%d\n", &dim) != 1 || dim != 0) {
+        fclose(f);
+        return 2;
+    }
+    if (load_crp0old(f, &ncells, &nsums, &rhs, &ncard, &list, &val,
+                     &data, &weight, &status, &lpl, &upl, &spl, &lb, &ub,
+                     &names) != 0) {
+        fclose(f);
+        return 3;
+    }
+    for (i = 0; i < nsums; i++) nterms += ncard[i];
+    free_crp(ncells, rhs, ncard, list, val, data, weight, status, lpl, upl,
+             spl, lb, ub, names);
+    fclose(f);
+    if (nterms_out) *nterms_out = nterms;
+    return 0;
+}
+#endif
 
 /*******************************************************************/
 
