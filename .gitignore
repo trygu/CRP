@@ -35,3 +35,6 @@ nbproject/private/
 /XXRounder/*.o
 /XXRounder/*.obj
 /XXRounder/*.exe
+
+# CMake test build dir (ctest)
+/build-test/
