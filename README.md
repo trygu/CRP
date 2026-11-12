@@ -49,5 +49,6 @@ directory is exposed as a PUBLIC include dir so `rounder` can `#include
 
 ## License
 
-© <jjsalaza@ull.es>. Distributed under the EUPL v1.1 / EUPL-1.2. See the
-top-level repository for the full notice.
+This fork is distributed under **EUPL-1.2**; see [LICENCE](LICENCE).
+Original upstream EUPL 1.1 and copyright notices are retained. The later-version
+permission in Article 5 of EUPL 1.1 is explained in [NOTICE.txt](NOTICE.txt).
