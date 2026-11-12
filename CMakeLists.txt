@@ -109,3 +109,7 @@ install(TARGETS CRP
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)
+install(DIRECTORY src/
+    DESTINATION include/crp
+    FILES_MATCHING PATTERN "*.h"
+)
